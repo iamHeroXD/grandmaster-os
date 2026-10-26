@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-charcoal-950 text-charcoal-100 antialiased font-sans;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #131517;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #32373d;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #484f57;
+  }
+}
+
+/* Board Themes */
+.theme-wood .square-light {
+  background-color: #ecdab9;
+}
+.theme-wood .square-dark {
+  background-color: #b88b4a;
+}
+
+.theme-tournament .square-light {
+  background-color: #eeeed2;
+}
+.theme-tournament .square-dark {
+  background-color: #769656;
+}
+
+.theme-slate .square-light {
+  background-color: #dee3e6;
+}
+.theme-slate .square-dark {
+  background-color: #8ca1a9;
+}
+
+.theme-monochrome .square-light {
+  background-color: #e5e5e5;
+}
+.theme-monochrome .square-dark {
+  background-color: #6a6a6a;
+}
+
+.theme-highcontrast .square-light {
+  background-color: #ffffff;
+}
+.theme-highcontrast .square-dark {
+  background-color: #2b2b2b;
+}
+
+/* Dragging animation */
+.piece-dragging {
+  cursor: grabbing !important;
+  opacity: 0.85;
+  transform: scale(1.08);
+  transition: transform 0.05s ease;
+  z-index: 50;
+}

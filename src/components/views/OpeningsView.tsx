@@ -117,6 +117,7 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
             board={board}
             turn={controller.getTurn()}
             theme={settings.boardTheme}
+            pieceSet={settings.pieceSet}
             showCoordinates={settings.showCoordinates}
             interactive={false}
           />

@@ -162,6 +162,7 @@ export const EndgamesView: React.FC<EndgamesViewProps> = ({ settings }) => {
             turn={turn}
             orientation={selectedEndgame.sideToMove}
             theme={settings.boardTheme}
+            pieceSet={settings.pieceSet}
             selectedSquare={selectedSquare}
             legalMoves={legalMoves}
             lastMove={lastMove}

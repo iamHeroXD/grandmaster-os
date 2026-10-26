@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Square, PieceType, Color } from '../../types/chess';
-import { BoardThemeName } from '../../types/database';
+import { BoardThemeName, PieceSetName } from '../../types/database';
 import { PieceSvg } from './PieceSvg';
 
 interface ChessBoardProps {
@@ -8,10 +8,12 @@ interface ChessBoardProps {
   turn: Color;
   orientation?: Color;
   theme?: BoardThemeName;
+  pieceSet?: PieceSetName;
   legalMoves?: Square[];
   selectedSquare?: Square | null;
   lastMove?: { from: Square; to: Square } | null;
   checkSquare?: Square | null;
+  hintArrow?: { from: Square; to: Square } | null;
   showCoordinates?: boolean;
   showLegalDots?: boolean;
   onSquareClick?: (square: Square) => void;
@@ -24,10 +26,12 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   turn,
   orientation = 'w',
   theme = 'tournament',
+  pieceSet = 'classic',
   legalMoves = [],
   selectedSquare = null,
   lastMove = null,
   checkSquare = null,
+  hintArrow = null,
   showCoordinates = true,
   showLegalDots = true,
   onSquareClick,
@@ -35,6 +39,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   interactive = true,
 }) => {
   const [draggedSquare, setDraggedSquare] = useState<Square | null>(null);
+  const [hoveredSquare, setHoveredSquare] = useState<Square | null>(null);
   const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null);
 
   // Files and ranks based on orientation
@@ -43,10 +48,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 
   const displayFiles = orientation === 'w' ? files : [...files].reverse();
   const displayRanks = orientation === 'w' ? ranks : [...ranks].reverse();
-
-  const getSquareName = (fileIdx: number, rankIdx: number): Square => {
-    return `${displayFiles[fileIdx]}${displayRanks[rankIdx]}` as Square;
-  };
 
   const getPieceAt = (square: Square) => {
     const file = square.charCodeAt(0) - 97;
@@ -58,7 +59,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     if (!interactive) return;
 
     if (selectedSquare && legalMoves.includes(square)) {
-      // Check for pawn promotion
       const piece = getPieceAt(selectedSquare);
       if (piece?.type === 'p' && (square[1] === '8' || square[1] === '1')) {
         setPromotionPending({ from: selectedSquare, to: square });
@@ -114,9 +114,21 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     setPromotionPending(null);
   };
 
+  // Convert square e.g. "e4" to pixel percentages for arrow drawing
+  const getSquareCenter = (square: Square): { cx: number; cy: number } => {
+    const file = square[0];
+    const rank = square[1];
+    const fIdx = displayFiles.indexOf(file);
+    const rIdx = displayRanks.indexOf(rank);
+    return {
+      cx: ((fIdx + 0.5) / 8) * 100,
+      cy: ((rIdx + 0.5) / 8) * 100,
+    };
+  };
+
   return (
-    <div className={`relative select-none aspect-square w-full max-w-[620px] rounded shadow-2xl p-1 bg-charcoal-900 border border-charcoal-800 theme-${theme}`}>
-      <div className="grid grid-cols-8 grid-rows-8 w-full h-full rounded overflow-hidden">
+    <div className={`relative select-none aspect-square w-full max-w-[620px] rounded-xl shadow-2xl p-2 bg-gradient-to-b from-charcoal-850 to-charcoal-900 border border-charcoal-750 theme-${theme}`}>
+      <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-lg overflow-hidden border border-charcoal-800 shadow-inner">
         {displayRanks.map((rank, rIdx) =>
           displayFiles.map((file, fIdx) => {
             const sqName = `${file}${rank}` as Square;
@@ -126,26 +138,29 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             const isLegal = legalMoves.includes(sqName);
             const isLastMove = lastMove?.from === sqName || lastMove?.to === sqName;
             const isCheck = checkSquare === sqName;
+            const isHovered = hoveredSquare === sqName;
 
             return (
               <div
                 key={sqName}
                 onClick={() => handleSquareClick(sqName)}
+                onMouseEnter={() => setHoveredSquare(sqName)}
+                onMouseLeave={() => setHoveredSquare(null)}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, sqName)}
-                className={`relative flex items-center justify-center cursor-pointer transition-colors ${
+                className={`relative flex items-center justify-center cursor-pointer transition-colors duration-100 ${
                   isLight ? 'square-light' : 'square-dark'
-                } ${isSelected ? '!bg-amber-300/60' : ''} ${
-                  isLastMove && !isSelected ? '!bg-emerald-500/30' : ''
-                } ${isCheck ? '!bg-red-600/70 shadow-inner' : ''}`}
+                } ${isSelected ? '!bg-amber-300/65 shadow-inner' : ''} ${
+                  isLastMove && !isSelected ? '!bg-emerald-500/35 shadow-inner' : ''
+                } ${isCheck ? '!bg-rose-600/75 animate-pulse shadow-lg ring-2 ring-rose-400' : ''}`}
               >
-                {/* Board coordinates */}
+                {/* Coordinates */}
                 {showCoordinates && (
                   <>
                     {fIdx === 0 && (
                       <span
-                        className={`absolute top-0.5 left-1 text-[10px] font-semibold leading-none ${
-                          isLight ? 'text-charcoal-700' : 'text-charcoal-200'
+                        className={`absolute top-0.5 left-1 text-[11px] font-bold leading-none select-none font-mono ${
+                          isLight ? 'text-charcoal-700/80' : 'text-charcoal-200/90'
                         }`}
                       >
                         {rank}
@@ -153,8 +168,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                     )}
                     {rIdx === 7 && (
                       <span
-                        className={`absolute bottom-0.5 right-1 text-[10px] font-semibold leading-none ${
-                          isLight ? 'text-charcoal-700' : 'text-charcoal-200'
+                        className={`absolute bottom-0.5 right-1 text-[11px] font-bold leading-none select-none font-mono ${
+                          isLight ? 'text-charcoal-700/80' : 'text-charcoal-200/90'
                         }`}
                       >
                         {file}
@@ -163,14 +178,19 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                   </>
                 )}
 
-                {/* Chess piece */}
+                {/* Subtle Hover Ring for Beginner Friendliness */}
+                {isHovered && interactive && !isSelected && (
+                  <div className="absolute inset-0 bg-white/10 pointer-events-none rounded-sm transition-opacity" />
+                )}
+
+                {/* Chess piece with realistic drop shadow and hover elevation */}
                 {piece && (
                   <div
                     draggable={interactive}
                     onDragStart={(e) => handleDragStart(e, sqName)}
-                    className="w-[84%] h-[84%] z-10 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-105 transition-transform"
+                    className="w-[86%] h-[86%] z-10 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-108 transition-transform duration-100 ease-out"
                   >
-                    <PieceSvg type={piece.type} color={piece.color} />
+                    <PieceSvg type={piece.type} color={piece.color} pieceSet={pieceSet} />
                   </div>
                 )}
 
@@ -178,11 +198,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                 {showLegalDots && isLegal && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
                     {piece ? (
-                      // Capture ring
-                      <div className="w-[84%] h-[84%] rounded-full border-4 border-charcoal-950/40" />
+                      // Capture Target Ring
+                      <div className="w-[84%] h-[84%] rounded-full border-4 border-emerald-950/60 shadow-sm animate-pulse" />
                     ) : (
-                      // Quiet move dot
-                      <div className="w-3.5 h-3.5 rounded-full bg-charcoal-950/35" />
+                      // Subtle Move Dot
+                      <div className="w-3.5 h-3.5 rounded-full bg-emerald-950/45 shadow-sm transform hover:scale-125 transition-transform" />
                     )}
                   </div>
                 )}
@@ -190,21 +210,60 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             );
           })
         )}
+
+        {/* Dynamic Animated Hint Arrow */}
+        {hintArrow && (
+          <svg className="absolute inset-0 w-full h-full pointer-events-none z-30">
+            <defs>
+              <marker
+                id="hint-arrowhead"
+                markerWidth="6"
+                markerHeight="6"
+                refX="4"
+                refY="3"
+                orient="auto"
+              >
+                <polygon points="0 0, 6 3, 0 6" fill="#34d399" />
+              </marker>
+            </defs>
+            {(() => {
+              const fromC = getSquareCenter(hintArrow.from);
+              const toC = getSquareCenter(hintArrow.to);
+              return (
+                <line
+                  x1={`${fromC.cx}%`}
+                  y1={`${fromC.cy}%`}
+                  x2={`${toC.cx}%`}
+                  y2={`${toC.cy}%`}
+                  stroke="#34d399"
+                  strokeWidth="5"
+                  strokeLinecap="round"
+                  strokeDasharray="6,4"
+                  markerEnd="url(#hint-arrowhead)"
+                  opacity="0.9"
+                  className="animate-pulse"
+                />
+              );
+            })()}
+          </svg>
+        )}
       </div>
 
-      {/* Pawn Promotion Modal */}
+      {/* Pawn Promotion Modal with Shaded Glassmorphism */}
       {promotionPending && (
-        <div className="absolute inset-0 z-50 bg-charcoal-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-charcoal-900 border border-charcoal-700 rounded-lg p-4 shadow-2xl flex flex-col items-center">
-            <span className="text-sm font-semibold mb-3 text-charcoal-200">Promote Pawn To</span>
+        <div className="absolute inset-0 z-50 bg-charcoal-950/85 backdrop-blur-md flex items-center justify-center p-4 rounded-xl">
+          <div className="bg-charcoal-900 border border-charcoal-700 rounded-xl p-5 shadow-2xl flex flex-col items-center">
+            <span className="text-sm font-bold mb-3 text-charcoal-100 tracking-wide">
+              Promote Pawn To
+            </span>
             <div className="flex gap-3">
               {(['q', 'r', 'b', 'n'] as PieceType[]).map((pType) => (
                 <button
                   key={pType}
                   onClick={() => handlePromotionSelect(pType)}
-                  className="w-14 h-14 p-2 bg-charcoal-800 hover:bg-chess-green/30 border border-charcoal-700 rounded transition-all hover:scale-110"
+                  className="w-16 h-16 p-2 bg-charcoal-800 hover:bg-emerald-950/60 border border-charcoal-700 hover:border-emerald-500 rounded-lg transition-all transform hover:scale-115 shadow-lg flex items-center justify-center"
                 >
-                  <PieceSvg type={pType} color={turn} />
+                  <PieceSvg type={pType} color={turn} pieceSet={pieceSet} />
                 </button>
               ))}
             </div>

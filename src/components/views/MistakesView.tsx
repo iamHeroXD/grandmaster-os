@@ -221,6 +221,7 @@ export const MistakesView: React.FC<MistakesViewProps> = ({ settings }) => {
               board={board}
               turn={turn}
               theme={settings.boardTheme}
+              pieceSet={settings.pieceSet}
               selectedSquare={selectedSquare}
               legalMoves={legalMoves}
               lastMove={lastMove}

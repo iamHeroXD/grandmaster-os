@@ -224,6 +224,7 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
             turn={turn}
             orientation={selectedLine.color}
             theme={settings.boardTheme}
+            pieceSet={settings.pieceSet}
             selectedSquare={selectedSquare}
             legalMoves={legalMoves}
             lastMove={lastMove}

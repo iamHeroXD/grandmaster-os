@@ -6,6 +6,7 @@ import { soundService } from '../../services/soundService';
 import { StorageService } from '../../services/storage';
 import { Square, PieceType } from '../../types/chess';
 import { ChessBoard } from '../board/ChessBoard';
+import { ConfettiEffect } from '../common/ConfettiEffect';
 import { Zap, HelpCircle, CheckCircle2, AlertTriangle, ArrowRight, RotateCcw, Clock } from 'lucide-react';
 
 interface TacticsViewProps {
@@ -30,6 +31,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
   const [status, setStatus] = useState<'solving' | 'solved' | 'failed'>('solving');
   const [hintTier, setHintTier] = useState<number>(0);
   const [startTime] = useState<number>(() => Date.now());
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
   // Load new puzzle
   const loadPuzzle = (puz: Puzzle) => {
@@ -97,6 +99,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
       if (nextStep >= currentPuzzle.moves.length) {
         soundService.playVictory();
         setStatus('solved');
+        setShowConfetti(true);
         const attempt: PuzzleAttempt = {
           puzzleId: currentPuzzle.id,
           timestamp: new Date().toISOString(),
@@ -148,6 +151,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
 
   return (
     <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+      <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
       {/* Board Column */}
       <div className="max-w-[620px] w-full flex flex-col items-center justify-center gap-3">
         <ChessBoard
@@ -155,6 +159,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           turn={turn}
           orientation={currentPuzzle.sideToMove}
           theme={settings.boardTheme}
+          pieceSet={settings.pieceSet}
           selectedSquare={selectedSquare}
           legalMoves={legalMoves}
           lastMove={lastMove}

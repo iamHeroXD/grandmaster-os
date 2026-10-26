@@ -257,11 +257,12 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
           />
 
           {/* Chessboard */}
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col gap-2">
             <ChessBoard
               board={board}
               turn={turn}
               theme={settings.boardTheme}
+              pieceSet={settings.pieceSet}
               lastMove={lastMove}
               showCoordinates={settings.showCoordinates}
               interactive={false}

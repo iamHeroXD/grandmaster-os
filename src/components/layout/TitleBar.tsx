@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, Minus, Square as WindowSquare, X } from 'lucide-react';
 import { UserProfile } from '../../types/database';
+import { AppLogo } from '../common/AppLogo';
 
 interface TitleBarProps {
   profile: UserProfile | null;
@@ -9,16 +10,13 @@ interface TitleBarProps {
 
 export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) => {
   return (
-    <div className="h-9 w-full bg-charcoal-950 border-b border-charcoal-850 flex items-center justify-between px-3 select-none text-xs text-charcoal-300 z-50">
+    <div className="h-10 w-full bg-gradient-to-r from-charcoal-950 via-charcoal-900 to-charcoal-950 border-b border-charcoal-800 flex items-center justify-between px-3.5 select-none text-xs text-charcoal-300 z-50 shadow-sm">
       {/* Brand & offline privacy indicator */}
-      <div className="flex items-center gap-2">
-        <div className="w-4 h-4 rounded bg-chess-green flex items-center justify-center font-bold text-white text-[10px]">
-          ♔
-        </div>
-        <span className="font-semibold tracking-wide text-charcoal-100">GRANDMASTER OS</span>
-        <div className="flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/40 px-2 py-0.5 rounded-full ml-2">
+      <div className="flex items-center gap-3">
+        <AppLogo size={22} showText={true} />
+        <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-emerald-300 bg-emerald-950/60 border border-emerald-700/40 px-2.5 py-0.5 rounded-full ml-2 shadow-inner">
           <Shield className="w-3 h-3 text-emerald-400" />
-          <span>Offline Private</span>
+          <span className="font-medium">100% Offline & Private</span>
         </div>
       </div>
 
@@ -27,36 +25,38 @@ export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) =
         {profile && (
           <button
             onClick={onOpenSettings}
-            className="flex items-center gap-1.5 hover:text-charcoal-100 transition-colors"
+            className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 hover:text-charcoal-100 transition-all shadow-sm"
           >
-            <div className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span className="font-medium">{profile.username}</span>
+            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-semibold text-charcoal-200">{profile.username}</span>
             {profile.estimatedRating && (
-              <span className="text-charcoal-500 font-mono text-[11px]">({profile.estimatedRating})</span>
+              <span className="text-amber-400 font-mono text-[11px] font-bold">
+                {profile.estimatedRating}
+              </span>
             )}
           </button>
         )}
 
         {/* Windows Desktop Window Controls */}
-        <div className="flex items-center gap-1 pl-3 border-l border-charcoal-800 text-charcoal-400">
+        <div className="flex items-center gap-1 pl-2 border-l border-charcoal-800 text-charcoal-400">
           <button
             onClick={() => window.blur()}
             title="Minimize"
-            className="p-1 hover:bg-charcoal-800 hover:text-charcoal-200 rounded transition-colors"
+            className="p-1.5 hover:bg-charcoal-800 hover:text-charcoal-200 rounded transition-colors"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => {}}
             title="Maximize"
-            className="p-1 hover:bg-charcoal-800 hover:text-charcoal-200 rounded transition-colors"
+            className="p-1.5 hover:bg-charcoal-800 hover:text-charcoal-200 rounded transition-colors"
           >
             <WindowSquare className="w-3 h-3" />
           </button>
           <button
-            onClick={() => {}}
+            onClick={() => window.close()}
             title="Close"
-            className="p-1 hover:bg-rose-900/50 hover:text-rose-300 rounded transition-colors"
+            className="p-1.5 hover:bg-rose-950/70 hover:text-rose-300 rounded transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>

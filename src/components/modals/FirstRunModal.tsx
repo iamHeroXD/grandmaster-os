@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { UserProfile, UserSettings } from '../../types/database';
+import { UserProfile, UserSettings, PieceSetName } from '../../types/database';
 import { TIME_CONTROLS } from '../../types/chess';
 import { Shield, Sparkles, Check } from 'lucide-react';
+import { AppLogo } from '../common/AppLogo';
 
 interface FirstRunModalProps {
   onComplete: (profile: UserProfile, settings: Partial<UserSettings>) => void;
@@ -9,13 +10,14 @@ interface FirstRunModalProps {
 
 export const FirstRunModal: React.FC<FirstRunModalProps> = ({ onComplete }) => {
   const [username, setUsername] = useState('ChessEnthusiast');
-  const [experience, setExperience] = useState<'beginner' | 'casual' | 'club_player' | 'advanced'>('casual');
-  const [rating, setRating] = useState<string>('1200');
+  const [experience, setExperience] = useState<'beginner' | 'casual' | 'club_player' | 'advanced'>('beginner');
+  const [rating, setRating] = useState<string>('1000');
   const [notation, setNotation] = useState<'none' | 'basic' | 'fluent'>('basic');
   const [timeControl, setTimeControl] = useState('10 + 0 (Rapid)');
-  const [coachingStyle, setCoachingStyle] = useState<'gentle' | 'tournament' | 'tactical' | 'grandmaster' | 'minimal'>('tournament');
+  const [coachingStyle, setCoachingStyle] = useState<'gentle' | 'tournament' | 'tactical' | 'grandmaster' | 'minimal'>('gentle');
   const [dailyMinutes, setDailyMinutes] = useState(25);
   const [boardTheme, setBoardTheme] = useState<'tournament' | 'wood' | 'slate'>('tournament');
+  const [pieceSet, setPieceSet] = useState<PieceSetName>('classic');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,23 +35,21 @@ export const FirstRunModal: React.FC<FirstRunModalProps> = ({ onComplete }) => {
       updatedAt: new Date().toISOString(),
     };
 
-    onComplete(profile, { boardTheme });
+    onComplete(profile, { boardTheme, pieceSet });
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-charcoal-950/90 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl max-w-xl w-full p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-charcoal-800">
-          <div className="w-10 h-10 rounded-lg bg-chess-green flex items-center justify-center text-white text-xl font-bold shadow">
-            ♔
-          </div>
+      <div className="bg-charcoal-900 border border-charcoal-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+        {/* Header with App Logo */}
+        <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-charcoal-800">
+          <AppLogo size={42} />
           <div>
             <h1 className="text-lg font-bold text-charcoal-100 flex items-center gap-2">
               Welcome to Grandmaster OS
             </h1>
             <p className="text-xs text-charcoal-400">
-              Your private, offline-first personal chess laboratory. No external accounts or cloud tracking.
+              Your private, offline-first personal chess laboratory. Designed for beginner to tournament mastery.
             </p>
           </div>
         </div>
@@ -159,29 +159,32 @@ export const FirstRunModal: React.FC<FirstRunModalProps> = ({ onComplete }) => {
             </div>
           </div>
 
-          {/* Board Theme */}
-          <div>
-            <label className="block text-charcoal-300 font-medium mb-1">Board Theme</label>
-            <div className="flex gap-3">
-              {[
-                { id: 'tournament', label: 'Tournament Green', color: 'bg-[#769656]' },
-                { id: 'wood', label: 'Classic Wood', color: 'bg-[#b88b4a]' },
-                { id: 'slate', label: 'Slate Gray', color: 'bg-[#8ca1a9]' },
-              ].map((th) => (
-                <button
-                  type="button"
-                  key={th.id}
-                  onClick={() => setBoardTheme(th.id as 'tournament' | 'wood' | 'slate')}
-                  className={`flex-1 p-2 rounded border flex items-center gap-2 transition-all ${
-                    boardTheme === th.id
-                      ? 'border-chess-green bg-charcoal-800 font-bold text-emerald-300'
-                      : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400'
-                  }`}
-                >
-                  <span className={`w-3.5 h-3.5 rounded-full ${th.color}`} />
-                  <span>{th.label}</span>
-                </button>
-              ))}
+          {/* Board Theme & Piece Set */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-charcoal-300 font-medium mb-1">Board Theme</label>
+              <select
+                value={boardTheme}
+                onChange={(e) => setBoardTheme(e.target.value as any)}
+                className="w-full bg-charcoal-800 border border-charcoal-700 rounded px-2.5 py-1.5 text-charcoal-200"
+              >
+                <option value="tournament">Tournament Green</option>
+                <option value="wood">Classic Wood</option>
+                <option value="slate">Slate Gray</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-charcoal-300 font-medium mb-1">Piece Style</label>
+              <select
+                value={pieceSet}
+                onChange={(e) => setPieceSet(e.target.value as any)}
+                className="w-full bg-charcoal-800 border border-charcoal-700 rounded px-2.5 py-1.5 text-charcoal-200"
+              >
+                <option value="classic">Neo Staunton (Master)</option>
+                <option value="wood">Warm Woodgrain</option>
+                <option value="modern">Modern Minimal</option>
+              </select>
             </div>
           </div>
 

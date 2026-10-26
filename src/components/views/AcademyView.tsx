@@ -6,6 +6,7 @@ import { soundService } from '../../services/soundService';
 import { StorageService } from '../../services/storage';
 import { Square, PieceType, Color } from '../../types/chess';
 import { ChessBoard } from '../board/ChessBoard';
+import { ConfettiEffect } from '../common/ConfettiEffect';
 import { GraduationCap, CheckCircle2, ChevronRight, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
 
 interface AcademyViewProps {
@@ -32,6 +33,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
   // Lesson exercise state
   const [exerciseStatus, setExerciseStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
   const [showHint, setShowHint] = useState<boolean>(false);
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
   // Group lessons by stage
   const stages = [1, 2, 3, 4, 5, 6, 7];
@@ -108,6 +110,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
     if (isMatch) {
       soundService.playVictory();
       setExerciseStatus('correct');
+      setShowConfetti(true);
       StorageService.recordLessonComplete(selectedLesson.id);
       onProgressUpdated();
     } else {
@@ -129,6 +132,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
 
   return (
     <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+      <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
       {/* Left Lesson Navigation Rail */}
       <div className="w-72 bg-charcoal-900 border border-charcoal-800 rounded-lg flex flex-col overflow-y-auto p-2 text-xs divide-y divide-charcoal-800/60">
         <div className="p-2 pb-3">
@@ -191,6 +195,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             board={board}
             turn={turn}
             theme={settings.boardTheme}
+            pieceSet={settings.pieceSet}
             selectedSquare={selectedSquare}
             legalMoves={legalMoves}
             lastMove={lastMove}

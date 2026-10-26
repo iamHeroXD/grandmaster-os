@@ -113,10 +113,37 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-4">
           <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
             <Palette className="w-4 h-4 text-amber-400" />
-            <span>Board & Visuals</span>
+            <span>Board Themes & Piece Styles</span>
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-charcoal-300 font-medium mb-1.5">Piece Style</label>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { id: 'classic', label: 'Neo Staunton (Master)', desc: 'Official shaded tournament vector' },
+                { id: 'wood', label: 'Warm Woodgrain', desc: 'Carved maple and dark walnut tones' },
+                { id: 'modern', label: 'Modern Minimal', desc: 'Clean, high-contrast contemporary lines' },
+              ].map((ps) => (
+                <button
+                  type="button"
+                  key={ps.id}
+                  onClick={() => setLocalSettings({ ...localSettings, pieceSet: ps.id as any })}
+                  className={`p-3 rounded-lg border text-left transition-all ${
+                    localSettings.pieceSet === ps.id
+                      ? 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-bold shadow'
+                      : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400 hover:text-charcoal-200'
+                  }`}
+                >
+                  <div className="text-xs">{ps.label}</div>
+                  <div className="text-[10px] text-charcoal-400 mt-0.5">{ps.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-charcoal-300 font-medium mb-1.5">Board Color Theme</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { id: 'tournament', label: 'Tournament Green', color: 'bg-[#769656]' },
               { id: 'wood', label: 'Classic Wood', color: 'bg-[#b88b4a]' },
@@ -139,6 +166,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </button>
             ))}
           </div>
+        </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
             <label className="flex items-center gap-2 cursor-pointer text-charcoal-300">

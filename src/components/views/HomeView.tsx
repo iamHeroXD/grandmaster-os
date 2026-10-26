@@ -2,7 +2,8 @@ import React from 'react';
 import { UserProfile, StoredMistake, LessonProgress } from '../../types/database';
 import { GameSummary } from '../../types/chess';
 import { NavTab } from '../layout/Sidebar';
-import { Play, GraduationCap, AlertTriangle, Zap, CheckCircle2, Trophy, Clock } from 'lucide-react';
+import { Play, GraduationCap, AlertTriangle, Zap, CheckCircle2, Trophy, Clock, Sparkles } from 'lucide-react';
+import { AppLogo } from '../common/AppLogo';
 
 interface HomeViewProps {
   profile: UserProfile | null;
@@ -34,22 +35,26 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 max-w-6xl mx-auto w-full">
       {/* Welcome Banner */}
-      <div className="flex items-center justify-between bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 shadow">
-        <div>
-          <span className="text-[11px] font-mono text-emerald-400 font-semibold uppercase tracking-wider">
-            Private Academy Dashboard
-          </span>
-          <h1 className="text-2xl font-bold text-charcoal-100 mt-0.5">
-            Welcome back, {username}
-          </h1>
-          <p className="text-xs text-charcoal-400 mt-1">
-            Your offline chess laboratory is ready. Daily training plan formulated based on your personal weaknesses.
-          </p>
+      <div className="flex items-center justify-between bg-gradient-to-r from-charcoal-900 via-charcoal-900 to-charcoal-850 border border-charcoal-800 rounded-2xl p-6 shadow-xl">
+        <div className="flex items-center gap-4">
+          <AppLogo size={52} />
+          <div>
+            <span className="text-[11px] font-mono text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3" />
+              <span>Private Chess Laboratory</span>
+            </span>
+            <h1 className="text-2xl font-extrabold text-charcoal-100 mt-0.5 tracking-tight">
+              Welcome back, {username}
+            </h1>
+            <p className="text-xs text-charcoal-400 mt-1 max-w-lg leading-relaxed">
+              Your offline academy is primed and ready. Personalized daily training formulated to target your weaknesses.
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => onNavigate('play')}
-          className="px-5 py-2.5 bg-chess-green hover:bg-chess-greenLight text-white text-xs font-semibold rounded-lg shadow-md flex items-center gap-2 transition-all hover:scale-105"
+          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105 active:scale-95"
         >
           <Play className="w-4 h-4 fill-white" />
           <span>Quick Play</span>

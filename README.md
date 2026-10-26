@@ -68,11 +68,16 @@ npm run dev
 ```
 Open [http://localhost:5173](http://localhost:5173) in your browser or desktop window.
 
-### Production Build
-```bash
-npm run build
-```
-Compiles TypeScript, processes Tailwind CSS, and outputs the optimized static distribution to `dist/`.
+### Quick Desktop Launch (1-Click)
+1. **Desktop Shortcut**: Double-click the **`Grandmaster OS`** shortcut placed on your Windows Desktop:
+   ```
+   C:\Users\Rohan\Desktop\Grandmaster OS.lnk
+   ```
+2. **Project Batch File**: Alternatively, double-click:
+   ```
+   f:\Work\chess\GrandmasterOS.bat
+   ```
+   This silently launches the desktop application in a standalone, dedicated, borderless desktop window with zero browser bars, tabs, or address bars.
 
 ---
 

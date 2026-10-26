@@ -7,6 +7,7 @@
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
+    "desktop": "node scripts/desktop-server.js",
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:watch": "vitest",

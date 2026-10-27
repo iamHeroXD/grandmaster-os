@@ -9,6 +9,14 @@ interface TitleBarProps {
 }
 
 export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) => {
+  const handleToggleMaximize = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
   return (
     <div className="h-10 w-full bg-gradient-to-r from-charcoal-950 via-charcoal-900 to-charcoal-950 border-b border-charcoal-800 flex items-center justify-between px-3.5 select-none text-xs text-charcoal-300 z-50 shadow-sm">
       {/* Brand & offline privacy indicator */}
@@ -47,15 +55,15 @@ export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) =
             <Minus className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => {}}
-            title="Maximize"
+            onClick={handleToggleMaximize}
+            title="Maximize / Restore Fullscreen"
             className="p-1.5 hover:bg-charcoal-800 hover:text-charcoal-200 rounded transition-colors"
           >
             <WindowSquare className="w-3 h-3" />
           </button>
           <button
             onClick={() => window.close()}
-            title="Close"
+            title="Close Application"
             className="p-1.5 hover:bg-rose-950/70 hover:text-rose-300 rounded transition-colors"
           >
             <X className="w-3.5 h-3.5" />

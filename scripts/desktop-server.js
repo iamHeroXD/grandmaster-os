@@ -94,7 +94,8 @@ server.listen(PORT, '127.0.0.1', () => {
 
   const args = [
     `--app=${appUrl}`,
-    `--window-size=1280,820`,
+    `--window-size=1360,860`,
+    `--window-position=center`,
     `--user-data-dir=${userDataDir}`,
     '--no-first-run',
     '--no-default-browser-check',
@@ -102,6 +103,10 @@ server.listen(PORT, '127.0.0.1', () => {
     '--disable-background-networking',
     '--disable-sync',
     '--disable-translate',
+    '--enable-features=WebUIDarkMode',
+    '--force-dark-mode',
+    '--disable-pinch',
+    '--overscroll-history-navigation=0',
   ];
 
   const appProcess = spawn(browserPath, args, {

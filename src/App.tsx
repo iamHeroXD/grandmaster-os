@@ -4,6 +4,7 @@ import { UserProfile, UserSettings, StoredMistake, LessonProgress, PuzzleAttempt
 import { GameSummary } from './types/chess';
 import { TitleBar } from './components/layout/TitleBar';
 import { Sidebar, NavTab } from './components/layout/Sidebar';
+import { StatusBar } from './components/layout/StatusBar';
 import { FirstRunModal } from './components/modals/FirstRunModal';
 import { ConfirmResetModal } from './components/modals/ConfirmResetModal';
 
@@ -179,6 +180,9 @@ export const App: React.FC = () => {
           )}
         </main>
       </div>
+
+      {/* Desktop Status Bar */}
+      <StatusBar activeTab={activeTab} settings={settings} />
 
       {/* First-Run Onboarding Modal */}
       {showFirstRunModal && (

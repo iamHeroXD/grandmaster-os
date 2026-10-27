@@ -40,6 +40,16 @@ export const App: React.FC = () => {
   const [showFirstRunModal, setShowFirstRunModal] = useState<boolean>(!profile);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
 
+  // Desktop heartbeat to keep offline supervisor alive while window is active
+  useEffect(() => {
+    const pingHeartbeat = () => {
+      fetch('/api/heartbeat').catch(() => {});
+    };
+    pingHeartbeat();
+    const intervalId = setInterval(pingHeartbeat, 4000);
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Sync state
   const refreshStorageState = () => {
     setProfile(StorageService.getProfile());

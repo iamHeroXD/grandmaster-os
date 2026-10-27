@@ -1,9 +1,11 @@
 @echo off
 title Grandmaster OS — The Private Chess Academy
 cd /d "%~dp0"
-if not exist "dist\index.html" (
-    echo Building Grandmaster OS for first-time launch...
-    call npm run build
+
+if exist "GrandmasterOS.exe" (
+    start "" "%~dp0GrandmasterOS.exe"
+    exit /b 0
 )
-echo Starting Grandmaster OS Desktop App...
-start "" wscript.exe "%~dp0scripts\silent-launch.vbs"
+
+:: Fallback if .exe is not present
+node "%~dp0scripts\desktop-server.js"

@@ -105,7 +105,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Layout Area */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Left Navigation Sidebar */}
         <Sidebar
           activeTab={activeTab}
@@ -114,7 +114,7 @@ export const App: React.FC = () => {
         />
 
         {/* View Switcher */}
-        <main className="flex-1 flex overflow-hidden bg-charcoal-950">
+        <main className="flex-1 flex overflow-y-auto overflow-x-hidden bg-charcoal-950 min-h-0">
           {activeTab === 'home' && (
             <HomeView
               profile={profile}

@@ -3,7 +3,7 @@ import { UserProfile, UserSettings } from '../../types/database';
 import { GrandmasterCoachService } from '../../services/coachService';
 import { ChessGameController } from '../../services/chessEngine';
 import { ChessBoard } from '../board/ChessBoard';
-import { HelpCircle, Brain, Sparkles, Award, Compass, ArrowRight } from 'lucide-react';
+import { GraduationCap, HelpCircle, Brain, Sparkles, Award, Compass, ArrowRight } from 'lucide-react';
 
 interface CoachViewProps {
   profile: UserProfile | null;
@@ -59,9 +59,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
       {/* Header banner */}
       <div className="flex items-center justify-between bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 shadow">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-chess-green/30 border border-chess-green flex items-center justify-center text-emerald-400 font-bold text-xl">
-            ♔
-          </div>
+          <div className="w-10 h-10 rounded-lg bg-emerald-950/60 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-sm"><GraduationCap className="w-5 h-5" /></div>
           <div>
             <h1 className="text-base font-bold text-charcoal-100">
               The Grandmaster — Personal Chess Mentor

@@ -386,11 +386,14 @@ export const PlayView: React.FC<PlayViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden p-4 gap-5 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-4 md:gap-6 max-w-7xl mx-auto w-full h-full min-h-0 items-start justify-center">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
 
       {/* Left Chessboard area */}
-      <div className="flex flex-col items-center justify-between flex-1 max-w-[620px] gap-2">
+      <div
+        style={{ maxWidth: 'min(100%, calc(100vh - 120px), 640px)' }}
+        className="flex flex-col items-center justify-center flex-1 w-full mx-auto gap-2 min-h-0"
+      >
         {/* Opponent clock & name */}
         <ClockDisplay
           whiteSeconds={whiteClock}
@@ -405,7 +408,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
         <CapturedTray board={board} playerColor={playerColor} />
 
         {/* Board */}
-        <div className="relative w-full">
+        <div className="relative w-full flex items-center justify-center min-h-0">
           <ChessBoard
             board={board}
             turn={turn}
@@ -422,6 +425,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             onSquareClick={handleSquareClick}
             onMovePiece={handleMovePiece}
             interactive={!gameOver}
+            maxBoardHeightOffset={210}
           />
 
           {/* Game Over Celebration Overlay */}
@@ -455,7 +459,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
         </div>
 
         {/* Controls row */}
-        <div className="flex items-center justify-between w-full max-w-[620px] px-1 text-xs">
+        <div className="flex items-center justify-between w-full px-1 text-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setBoardOrientation((o) => (o === 'w' ? 'b' : 'w'))}
@@ -513,7 +517,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
       </div>
 
       {/* Right sidebars: Move list & Settings/Coach tabs */}
-      <div className="flex flex-col flex-1 max-w-sm gap-3 h-full">
+      <div className="flex flex-col flex-1 max-w-sm gap-3 h-full min-h-0 overflow-y-auto pr-1">
         {/* Game Mode / Configuration Strip */}
         <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-3.5 text-xs flex flex-col gap-2.5 shadow">
           <div className="flex items-center justify-between font-bold text-charcoal-100">
@@ -610,7 +614,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
         </div>
 
         {/* Move History */}
-        <div className="flex-1 min-h-[220px]">
+        <div className="flex-1 min-h-[140px]">
           <MoveList
             moves={moves}
             currentMoveIndex={moves.length - 1}
@@ -621,7 +625,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
         </div>
 
         {/* Coach Advice Panel */}
-        <div className="h-64">
+        <div className="flex-1 min-h-[160px] max-h-64">
           <GrandmasterCoachPanel
             currentFen={fen}
             lastMove={moves[moves.length - 1]}

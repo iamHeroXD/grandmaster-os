@@ -150,10 +150,10 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-4 max-w-7xl mx-auto w-full min-h-0 items-start">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
       {/* Board Column */}
-      <div className="max-w-[620px] w-full flex flex-col items-center justify-center gap-3">
+      <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 620px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
         <ChessBoard
           board={board}
           turn={turn}
@@ -168,6 +168,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           onSquareClick={handleSquareClick}
           onMovePiece={handleMovePiece}
           interactive={status === 'solving'}
+          maxBoardHeightOffset={160}
         />
 
         <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-400">

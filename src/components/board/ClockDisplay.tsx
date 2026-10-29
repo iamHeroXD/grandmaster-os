@@ -30,10 +30,10 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
   const isBlackActive = activeColor === 'b';
 
   return (
-    <div className="flex items-center justify-between w-full max-w-[620px] px-2 py-1 gap-2 font-mono text-sm">
+    <div className="flex items-center justify-between w-full px-1 py-1 gap-2 font-mono text-xs sm:text-sm">
       {/* Black Player info & clock */}
       <div
-        className={`flex items-center justify-between flex-1 px-3 py-1.5 rounded border transition-all ${
+        className={`flex items-center justify-between flex-1 px-3 py-1.5 rounded-lg border transition-all ${
           isBlackActive
             ? 'bg-charcoal-800 border-emerald-500/60 shadow-md ring-1 ring-emerald-500/30'
             : 'bg-charcoal-900 border-charcoal-800 text-charcoal-400'
@@ -42,7 +42,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
         <span className="font-sans text-xs truncate max-w-[120px]">{blackName}</span>
         <div className="flex items-center gap-1.5 font-bold">
           <Clock className={`w-3.5 h-3.5 ${isBlackActive ? 'text-emerald-400 animate-pulse' : 'text-charcoal-500'}`} />
-          <span className={blackSeconds < 30 && !isUntimed ? 'text-rose-400' : ''}>
+          <span className={blackSeconds < 30 && !isUntimed ? 'text-rose-400 font-bold' : ''}>
             {formatTime(blackSeconds)}
           </span>
         </div>
@@ -50,7 +50,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
 
       {/* White Player info & clock */}
       <div
-        className={`flex items-center justify-between flex-1 px-3 py-1.5 rounded border transition-all ${
+        className={`flex items-center justify-between flex-1 px-3 py-1.5 rounded-lg border transition-all ${
           isWhiteActive
             ? 'bg-charcoal-800 border-emerald-500/60 shadow-md ring-1 ring-emerald-500/30'
             : 'bg-charcoal-900 border-charcoal-800 text-charcoal-400'
@@ -59,7 +59,7 @@ export const ClockDisplay: React.FC<ClockDisplayProps> = ({
         <span className="font-sans text-xs truncate max-w-[120px]">{whiteName}</span>
         <div className="flex items-center gap-1.5 font-bold">
           <Clock className={`w-3.5 h-3.5 ${isWhiteActive ? 'text-emerald-400 animate-pulse' : 'text-charcoal-500'}`} />
-          <span className={whiteSeconds < 30 && !isUntimed ? 'text-rose-400' : ''}>
+          <span className={whiteSeconds < 30 && !isUntimed ? 'text-rose-400 font-bold' : ''}>
             {formatTime(whiteSeconds)}
           </span>
         </div>

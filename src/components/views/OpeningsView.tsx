@@ -110,9 +110,9 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
       </div>
 
       {/* Main Opening Explorer */}
-      <div className="flex-1 flex overflow-hidden gap-4">
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
         {/* Board */}
-        <div className="max-w-[560px] w-full flex flex-col items-center justify-center gap-3">
+        <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 580px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
           <ChessBoard
             board={board}
             turn={controller.getTurn()}
@@ -120,6 +120,7 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
             pieceSet={settings.pieceSet}
             showCoordinates={settings.showCoordinates}
             interactive={false}
+            maxBoardHeightOffset={160}
           />
           <div className="text-xs text-charcoal-400 font-mono">
             Line: {selectedOpening.moves.join(' ')}

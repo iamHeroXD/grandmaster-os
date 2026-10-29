@@ -25,6 +25,8 @@ interface ChessBoardProps {
   onSquareClick?: (square: Square) => void;
   onMovePiece?: (from: Square, to: Square, promotion?: PieceType) => void;
   interactive?: boolean;
+  className?: string;
+  maxBoardHeightOffset?: number;
 }
 
 export const ChessBoard: React.FC<ChessBoardProps> = ({
@@ -43,6 +45,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   onSquareClick,
   onMovePiece,
   interactive = true,
+  className = '',
+  maxBoardHeightOffset = 210,
 }) => {
   const [draggedSquare, setDraggedSquare] = useState<Square | null>(null);
   const [hoveredSquare, setHoveredSquare] = useState<Square | null>(null);
@@ -185,7 +189,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   return (
     <div
       onContextMenu={handleContextMenu}
-      className={`relative select-none aspect-square w-full max-w-[640px] rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-2.5 bg-gradient-to-b from-charcoal-850 via-charcoal-900 to-charcoal-950 border border-charcoal-700/80 theme-${theme}`}
+      style={{
+        maxWidth: `min(100%, calc(100vh - ${maxBoardHeightOffset}px), 640px)`,
+        maxHeight: `calc(100vh - ${maxBoardHeightOffset}px)`,
+      }}
+      className={`relative select-none aspect-square w-full rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-2 sm:p-2.5 bg-gradient-to-b from-charcoal-850 via-charcoal-900 to-charcoal-950 border border-charcoal-700/80 theme-${theme} mx-auto transition-all ${className}`}
     >
       <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden border border-charcoal-800 shadow-inner">
         {displayRanks.map((rank, rIdx) =>

@@ -188,9 +188,9 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
       </div>
 
       {/* Main Lesson Exercise Area */}
-      <div className="flex-1 flex overflow-hidden gap-4">
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
         {/* Interactive Board */}
-        <div className="max-w-[560px] w-full flex flex-col items-center justify-center gap-3">
+        <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 580px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
           <ChessBoard
             board={board}
             turn={turn}
@@ -204,6 +204,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             onSquareClick={handleSquareClick}
             onMovePiece={handleMovePiece}
             interactive={exerciseStatus !== 'correct'}
+            maxBoardHeightOffset={160}
           />
 
           <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-400">

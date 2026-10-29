@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { GrandmasterCoachService } from '../../services/coachService';
 import { MoveRecord, EngineEvaluation } from '../../types/chess';
-import { HelpCircle, Sparkles, AlertCircle, Compass, Brain } from 'lucide-react';
+import { GraduationCap, HelpCircle, Sparkles, AlertCircle, Compass, Brain } from 'lucide-react';
 
 interface GrandmasterCoachPanelProps {
   currentFen: string;
@@ -44,9 +44,7 @@ export const GrandmasterCoachPanel: React.FC<GrandmasterCoachPanelProps> = ({
     <div className="flex flex-col h-full bg-charcoal-900 border border-charcoal-800 rounded-lg p-3 text-xs overflow-y-auto">
       {/* Coach Header */}
       <div className="flex items-center gap-2 pb-2 mb-2 border-b border-charcoal-800">
-        <div className="w-6 h-6 rounded bg-chess-green/30 border border-chess-green flex items-center justify-center text-emerald-400 font-bold">
-          ♔
-        </div>
+        <div className="w-6 h-6 rounded bg-emerald-950/60 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-sm"><GraduationCap className="w-3.5 h-3.5" /></div>
         <div>
           <div className="font-semibold text-charcoal-100 flex items-center gap-1.5">
             <span>The Grandmaster Coach</span>

@@ -246,18 +246,20 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
       </div>
 
       {/* Main Analysis Workspace */}
-      <div className="flex-1 flex overflow-hidden gap-4">
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
         {/* Left Board & Eval bar */}
-        <div className="flex items-center gap-2 max-w-[620px] w-full">
+        <div style={{ maxWidth: 'min(100%, calc(100vh - 160px), 640px)' }} className="flex items-stretch gap-2.5 w-full mx-auto min-h-0">
           {/* Vertical Eval bar */}
-          <EvaluationBar
-            scoreCp={evaluation.scoreCp}
-            scoreMate={evaluation.scoreMate}
-            isMate={evaluation.isMate}
-          />
+          <div className="flex flex-col justify-center min-h-0 py-1">
+            <EvaluationBar
+              scoreCp={evaluation.scoreCp}
+              scoreMate={evaluation.scoreMate}
+              isMate={evaluation.isMate}
+            />
+          </div>
 
           {/* Chessboard */}
-          <div className="flex-1 flex flex-col gap-2">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-0">
             <ChessBoard
               board={board}
               turn={turn}
@@ -266,6 +268,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
               lastMove={lastMove}
               showCoordinates={settings.showCoordinates}
               interactive={false}
+              maxBoardHeightOffset={170}
             />
           </div>
         </div>

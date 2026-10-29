@@ -64,7 +64,7 @@ export const CapturedTray: React.FC<CapturedTrayProps> = ({ board }) => {
   const diffBlack = blackPoints - whitePoints;
 
   return (
-    <div className="flex items-center justify-between w-full max-w-[620px] px-2 py-1 text-xs select-none">
+    <div className="flex items-center justify-between w-full px-1 py-0.5 text-xs select-none">
       {/* Captured by Black (White pieces captured) */}
       <div className="flex items-center gap-1.5 h-6">
         <div className="flex items-center -space-x-1.5">

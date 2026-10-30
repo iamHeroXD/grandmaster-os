@@ -64,18 +64,18 @@ export const CapturedTray: React.FC<CapturedTrayProps> = ({ board }) => {
   const diffBlack = blackPoints - whitePoints;
 
   return (
-    <div className="flex items-center justify-between w-full px-1 py-0.5 text-xs select-none">
+    <div className="flex items-center justify-between w-full px-2 py-0.5 text-xs select-none min-h-[24px]">
       {/* Captured by Black (White pieces captured) */}
       <div className="flex items-center gap-1.5 h-6">
         <div className="flex items-center -space-x-1.5">
           {capturedByBlack.map((t, idx) => (
-            <div key={idx} className="w-4 h-4 opacity-80 hover:opacity-100 transition-opacity">
+            <div key={idx} className="w-4 h-4 opacity-85 hover:opacity-100 hover:scale-125 transition-all">
               <PieceSvg type={t} color="w" />
             </div>
           ))}
         </div>
         {diffBlack > 0 && (
-          <span className="font-mono text-[10px] font-bold text-amber-400 bg-charcoal-800 px-1 rounded">
+          <span className="font-mono text-[11px] font-bold text-amber-300 bg-amber-950/70 border border-amber-800/60 px-1.5 py-0.2 rounded-md shadow-sm">
             +{diffBlack}
           </span>
         )}
@@ -84,13 +84,13 @@ export const CapturedTray: React.FC<CapturedTrayProps> = ({ board }) => {
       {/* Captured by White (Black pieces captured) */}
       <div className="flex items-center gap-1.5 h-6">
         {diffWhite > 0 && (
-          <span className="font-mono text-[10px] font-bold text-emerald-400 bg-charcoal-800 px-1 rounded">
+          <span className="font-mono text-[11px] font-bold text-emerald-300 bg-emerald-950/70 border border-emerald-800/60 px-1.5 py-0.2 rounded-md shadow-sm">
             +{diffWhite}
           </span>
         )}
         <div className="flex items-center -space-x-1.5">
           {capturedByWhite.map((t, idx) => (
-            <div key={idx} className="w-4 h-4 opacity-80 hover:opacity-100 transition-opacity">
+            <div key={idx} className="w-4 h-4 opacity-85 hover:opacity-100 hover:scale-125 transition-all">
               <PieceSvg type={t} color="b" />
             </div>
           ))}

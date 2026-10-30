@@ -20,6 +20,7 @@ interface ChessBoardProps {
   lastMove?: { from: Square; to: Square } | null;
   checkSquare?: Square | null;
   hintArrow?: { from: Square; to: Square } | null;
+  threatArrow?: { from: Square; to: Square } | null;
   showCoordinates?: boolean;
   showLegalDots?: boolean;
   onSquareClick?: (square: Square) => void;
@@ -40,6 +41,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   lastMove = null,
   checkSquare = null,
   hintArrow = null,
+  threatArrow = null,
   showCoordinates = true,
   showLegalDots = true,
   onSquareClick,
@@ -52,7 +54,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   const [hoveredSquare, setHoveredSquare] = useState<Square | null>(null);
   const [promotionPending, setPromotionPending] = useState<{ from: Square; to: Square } | null>(null);
 
-  // User drawn arrows and square highlights (ChessBase style)
+  // User drawn arrows and square highlights (ChessBase / Lichess style)
   const [drawnArrows, setDrawnArrows] = useState<Arrow[]>([]);
   const [highlightedSquares, setHighlightedSquares] = useState<Square[]>([]);
   const [rightClickStart, setRightClickStart] = useState<Square | null>(null);
@@ -64,11 +66,21 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
   const displayFiles = orientation === 'w' ? files : [...files].reverse();
   const displayRanks = orientation === 'w' ? ranks : [...ranks].reverse();
 
-  // Clear user drawings on regular left click
+  // Clear user drawings on Escape key or regular left click
   const clearDrawings = () => {
     setDrawnArrows([]);
     setHighlightedSquares([]);
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        clearDrawings();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const getPieceAt = (square: Square) => {
     const file = square.charCodeAt(0) - 97;
@@ -139,7 +151,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
 
   // Right-click analysis drawing (ChessBase / Lichess style)
   const handleContextMenu = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent standard browser menu on the chessboard
+    e.preventDefault();
   };
 
   const handleMouseDown = (e: React.MouseEvent, square: Square) => {
@@ -160,13 +172,14 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           prev.includes(square) ? prev.filter((s) => s !== square) : [...prev, square]
         );
       } else {
-        // Add or remove arrow
+        // Add or remove arrow (Shift+RightClick = Red, Normal = Gold)
+        const arrowColor = e.shiftKey ? '#ef4444' : '#f59e0b';
         setDrawnArrows((prev) => {
           const exists = prev.some((a) => a.from === rightClickStart && a.to === square);
           if (exists) {
             return prev.filter((a) => !(a.from === rightClickStart && a.to === square));
           } else {
-            return [...prev, { from: rightClickStart, to: square, color: '#f59e0b' }];
+            return [...prev, { from: rightClickStart, to: square, color: arrowColor }];
           }
         });
       }
@@ -174,7 +187,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
     }
   };
 
-  // Convert square e.g. "e4" to pixel percentages for arrow drawing
+  // Convert square e.g. "e4" to percentage coordinates for arrow drawing
   const getSquareCenter = (square: Square): { cx: number; cy: number } => {
     const file = square[0];
     const rank = square[1];
@@ -193,7 +206,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
         maxWidth: `min(100%, calc(100vh - ${maxBoardHeightOffset}px), 640px)`,
         maxHeight: `calc(100vh - ${maxBoardHeightOffset}px)`,
       }}
-      className={`relative select-none aspect-square w-full rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-2 sm:p-2.5 bg-gradient-to-b from-charcoal-850 via-charcoal-900 to-charcoal-950 border border-charcoal-700/80 theme-${theme} mx-auto transition-all ${className}`}
+      className={`relative select-none aspect-square w-full rounded-2xl shadow-[0_12px_45px_rgba(0,0,0,0.65)] p-2 sm:p-2.5 bg-gradient-to-b from-charcoal-850 via-charcoal-900 to-charcoal-950 border border-charcoal-700/80 theme-${theme} mx-auto transition-all ${className}`}
     >
       <div className="relative grid grid-cols-8 grid-rows-8 w-full h-full rounded-xl overflow-hidden border border-charcoal-800 shadow-inner">
         {displayRanks.map((rank, rIdx) =>
@@ -226,13 +239,13 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                   isRightClickHighlighted ? '!bg-amber-500/40 ring-2 ring-inset ring-amber-400' : ''
                 }`}
               >
-                {/* Board coordinates */}
+                {/* Board coordinates - crystal clear and theme-aware */}
                 {showCoordinates && (
                   <>
                     {fIdx === 0 && (
                       <span
-                        className={`absolute top-0.5 left-1 text-[11px] font-bold leading-none select-none font-mono ${
-                          isLight ? 'text-charcoal-700/80' : 'text-charcoal-200/90'
+                        className={`absolute top-0.5 left-1 text-[11px] font-extrabold leading-none select-none font-mono ${
+                          isLight ? 'coord-light' : 'coord-dark'
                         }`}
                       >
                         {rank}
@@ -240,8 +253,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                     )}
                     {rIdx === 7 && (
                       <span
-                        className={`absolute bottom-0.5 right-1 text-[11px] font-bold leading-none select-none font-mono ${
-                          isLight ? 'text-charcoal-700/80' : 'text-charcoal-200/90'
+                        className={`absolute bottom-0.5 right-1 text-[11px] font-extrabold leading-none select-none font-mono ${
+                          isLight ? 'coord-light' : 'coord-dark'
                         }`}
                       >
                         {file}
@@ -260,7 +273,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                   <div
                     draggable={interactive}
                     onDragStart={(e) => handleDragStart(e, sqName)}
-                    className="w-[88%] h-[88%] z-10 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-108 transition-transform duration-100 ease-out"
+                    className="w-[88%] h-[88%] z-10 flex items-center justify-center cursor-grab active:cursor-grabbing hover:scale-105 transition-transform duration-100 ease-out"
                   >
                     <PieceSvg type={piece.type} color={piece.color} pieceSet={pieceSet} />
                   </div>
@@ -274,7 +287,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                       <div className="w-[86%] h-[86%] rounded-full border-[4px] border-emerald-950/70 shadow-sm animate-pulse" />
                     ) : (
                       // Quiet move dot
-                      <div className="w-3.5 h-3.5 rounded-full bg-emerald-950/50 shadow-sm hover:scale-125 transition-transform" />
+                      <div className="w-3.5 h-3.5 rounded-full bg-emerald-950/60 shadow-sm hover:scale-125 transition-transform" />
                     )}
                   </div>
                 )}
@@ -289,12 +302,38 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
             <marker id="hint-arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
               <polygon points="0 0, 6 3, 0 6" fill="#34d399" />
             </marker>
-            <marker id="user-arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+            <marker id="threat-arrowhead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+              <polygon points="0 0, 6 3, 0 6" fill="#f87171" />
+            </marker>
+            <marker id="user-arrowhead-gold" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
               <polygon points="0 0, 6 3, 0 6" fill="#f59e0b" />
+            </marker>
+            <marker id="user-arrowhead-red" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+              <polygon points="0 0, 6 3, 0 6" fill="#ef4444" />
             </marker>
           </defs>
 
-          {/* Engine Hint Arrow */}
+          {/* Threat Arrow (Red) */}
+          {threatArrow && (() => {
+            const fromC = getSquareCenter(threatArrow.from);
+            const toC = getSquareCenter(threatArrow.to);
+            return (
+              <line
+                x1={`${fromC.cx}%`}
+                y1={`${fromC.cy}%`}
+                x2={`${toC.cx}%`}
+                y2={`${toC.cy}%`}
+                stroke="#f87171"
+                strokeWidth="5"
+                strokeLinecap="round"
+                markerEnd="url(#threat-arrowhead)"
+                opacity="0.9"
+                className="animate-pulse"
+              />
+            );
+          })()}
+
+          {/* Engine Hint Arrow (Green Dash) */}
           {hintArrow && (() => {
             const fromC = getSquareCenter(hintArrow.from);
             const toC = getSquareCenter(hintArrow.to);
@@ -319,6 +358,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
           {drawnArrows.map((arr, i) => {
             const fromC = getSquareCenter(arr.from);
             const toC = getSquareCenter(arr.to);
+            const isRed = arr.color === '#ef4444';
             return (
               <line
                 key={i}
@@ -329,7 +369,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                 stroke={arr.color || '#f59e0b'}
                 strokeWidth="4.5"
                 strokeLinecap="round"
-                markerEnd="url(#user-arrowhead)"
+                markerEnd={isRed ? 'url(#user-arrowhead-red)' : 'url(#user-arrowhead-gold)'}
                 opacity="0.85"
               />
             );
@@ -349,7 +389,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({
                 <button
                   key={pType}
                   onClick={() => handlePromotionSelect(pType)}
-                  className="w-16 h-16 p-2 bg-charcoal-800 hover:bg-emerald-950/60 border border-charcoal-700 hover:border-emerald-500 rounded-xl transition-all transform hover:scale-115 shadow-lg flex items-center justify-center"
+                  className="w-16 h-16 p-2 bg-charcoal-800 hover:bg-emerald-950/60 border border-charcoal-700 hover:border-emerald-500 rounded-xl transition-all transform hover:scale-110 shadow-lg flex items-center justify-center"
                 >
                   <PieceSvg type={pType} color={turn} pieceSet={pieceSet} />
                 </button>

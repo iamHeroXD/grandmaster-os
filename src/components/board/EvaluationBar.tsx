@@ -6,6 +6,7 @@ interface EvaluationBarProps {
   isMate?: boolean;
   orientation?: 'w' | 'b';
   compact?: boolean;
+  heightClass?: string;
 }
 
 export const EvaluationBar: React.FC<EvaluationBarProps> = ({
@@ -14,6 +15,7 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
   isMate = false,
   orientation = 'w',
   compact = false,
+  heightClass = 'min-h-[280px]',
 }) => {
   // Convert evaluation into percentage for White (0% = Black winning, 50% = Equal, 100% = White winning)
   let whitePercent = 50;
@@ -21,8 +23,7 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
   if (isMate && scoreMate !== undefined) {
     whitePercent = scoreMate > 0 ? 100 : 0;
   } else {
-    // Sigmoid or clamped transform: 1000cp gives ~98%
-    // formula: 50 + 50 * (2 / (1 + exp(-0.004 * scoreCp)) - 1)
+    // Sigmoid transformation: 400cp ~ 73%, 800cp ~ 90%, 1500cp ~ 98%
     const clampedCp = Math.max(-1500, Math.min(1500, scoreCp));
     const winChance = 1 / (1 + Math.pow(10, -clampedCp / 400));
     whitePercent = Math.round(winChance * 100);
@@ -31,7 +32,7 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
   // Display label
   let label = '0.0';
   if (isMate && scoreMate !== undefined) {
-    label = `M${Math.abs(scoreMate)}`;
+    label = scoreMate > 0 ? `+M${Math.abs(scoreMate)}` : `-M${Math.abs(scoreMate)}`;
   } else {
     const pawns = (scoreCp / 100).toFixed(1);
     label = scoreCp > 0 ? `+${pawns}` : pawns;
@@ -42,33 +43,33 @@ export const EvaluationBar: React.FC<EvaluationBarProps> = ({
 
   return (
     <div
-      className={`relative rounded overflow-hidden bg-charcoal-800 border border-charcoal-700 select-none shadow ${
-        compact ? 'w-4 h-full' : 'w-7 h-full min-h-[300px]'
-      }`}
+      className={`relative rounded-xl overflow-hidden bg-charcoal-900 border border-charcoal-700 select-none shadow-lg ${heightClass} ${
+        compact ? 'w-5' : 'w-7'
+      } flex flex-col`}
     >
       {/* Black's share (top) */}
       <div
-        className="w-full bg-charcoal-900 transition-all duration-300 ease-out"
+        className="w-full bg-[#1e2329] transition-all duration-300 ease-out border-b border-charcoal-800"
         style={{ height: `${topPercent}%` }}
       />
       {/* White's share (bottom) */}
       <div
-        className="w-full bg-slate-100 transition-all duration-300 ease-out"
+        className="w-full bg-[#f0f2f5] transition-all duration-300 ease-out"
         style={{ height: `${100 - topPercent}%` }}
       />
 
       {/* Numerical score label */}
-      {!compact && (
-        <div
-          className={`absolute inset-x-0 text-center text-[10px] font-mono font-bold px-0.5 ${
-            whitePercent >= 50
-              ? 'bottom-2 text-charcoal-900'
-              : 'top-2 text-slate-100'
-          }`}
-        >
-          {label}
-        </div>
-      )}
+      <div
+        className={`absolute inset-x-0 text-center font-mono font-black tracking-tighter px-0.5 pointer-events-none drop-shadow ${
+          compact ? 'text-[9px]' : 'text-[10px]'
+        } ${
+          whitePercent >= 50
+            ? 'bottom-2 text-charcoal-950'
+            : 'top-2 text-charcoal-50'
+        }`}
+      >
+        {label}
+      </div>
     </div>
   );
 };

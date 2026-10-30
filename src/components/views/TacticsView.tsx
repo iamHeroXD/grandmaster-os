@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CURATED_PUZZLES } from '../../data/puzzles';
 import { Puzzle, UserSettings, PuzzleAttempt } from '../../types/database';
 import { ChessGameController } from '../../services/chessEngine';
@@ -7,7 +7,17 @@ import { StorageService } from '../../services/storage';
 import { Square, PieceType } from '../../types/chess';
 import { ChessBoard } from '../board/ChessBoard';
 import { ConfettiEffect } from '../common/ConfettiEffect';
-import { Zap, HelpCircle, CheckCircle2, AlertTriangle, ArrowRight, RotateCcw, Clock } from 'lucide-react';
+import {
+  Zap,
+  HelpCircle,
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  RotateCcw,
+  Sparkles,
+  Trophy,
+  Lightbulb,
+} from 'lucide-react';
 
 interface TacticsViewProps {
   settings: UserSettings;
@@ -25,6 +35,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
+  const [hintArrow, setHintArrow] = useState<{ from: Square; to: Square } | null>(null);
 
   // Puzzle progress state
   const [moveStep, setMoveStep] = useState(0);
@@ -42,9 +53,11 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
     setSelectedSquare(null);
     setLegalMoves([]);
     setLastMove(null);
+    setHintArrow(null);
     setMoveStep(0);
     setStatus('solving');
     setHintTier(0);
+    setShowConfetti(false);
   };
 
   const handleSquareClick = (square: Square) => {
@@ -84,6 +97,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
     setLastMove({ from, to });
     setSelectedSquare(null);
     setLegalMoves([]);
+    setHintArrow(null);
 
     const expectedMove = currentPuzzle.moves[moveStep];
     const isCorrect =
@@ -117,7 +131,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           setTurn(controller.getTurn());
           setMoveStep(nextStep + 1);
           soundService.playMove();
-        }, 300);
+        }, 350);
       }
     } else {
       soundService.playMistake();
@@ -145,13 +159,29 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
 
   const revealNextHint = () => {
     if (hintTier < 3) {
-      setHintTier((h) => h + 1);
+      const nextTier = hintTier + 1;
+      setHintTier(nextTier);
+
+      // If tier 3, show visual arrow
+      if (nextTier >= 2) {
+        const nextExpected = currentPuzzle.moves[moveStep];
+        if (nextExpected && nextExpected.length >= 2) {
+          const target = nextExpected.slice(-2) as Square;
+          if (target.length === 2) {
+            setHintArrow({
+              from: (currentPuzzle.sideToMove === 'w' ? 'e2' : 'e7') as Square,
+              to: target,
+            });
+          }
+        }
+      }
     }
   };
 
   return (
-    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-4 max-w-7xl mx-auto w-full min-h-0 items-start">
+    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-5 max-w-7xl mx-auto w-full min-h-0 items-start text-xs">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
+
       {/* Board Column */}
       <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 620px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
         <ChessBoard
@@ -163,6 +193,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           selectedSquare={selectedSquare}
           legalMoves={legalMoves}
           lastMove={lastMove}
+          hintArrow={hintArrow}
           showCoordinates={settings.showCoordinates}
           showLegalDots={settings.showLegalDots}
           onSquareClick={handleSquareClick}
@@ -171,9 +202,12 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           maxBoardHeightOffset={160}
         />
 
-        <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-400">
+        <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-300 font-medium">
           <span>{currentPuzzle.sideToMove === 'w' ? 'White to move and win' : 'Black to move and win'}</span>
-          <button onClick={handleRetry} className="text-emerald-400 hover:underline flex items-center gap-1">
+          <button
+            onClick={handleRetry}
+            className="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 transition-colors"
+          >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset Position</span>
           </button>
@@ -181,104 +215,124 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
       </div>
 
       {/* Details & Hint Engine */}
-      <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-lg p-5 flex flex-col justify-between overflow-y-auto text-xs">
+      <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-2xl p-5 flex flex-col justify-between gap-4 overflow-y-auto shadow-lg">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase tracking-wider">
-              Tactical Exercise #{puzzleIndex + 1}
+          <div className="flex items-center justify-between border-b border-charcoal-800 pb-3">
+            <span className="text-[11px] font-mono text-emerald-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Tactical Exercise #{puzzleIndex + 1} of {CURATED_PUZZLES.length}</span>
             </span>
-            <span className="px-2 py-0.5 rounded bg-charcoal-800 border border-charcoal-700 font-mono text-[11px] font-bold text-amber-400">
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-950/70 border border-amber-700/60 font-mono text-xs font-black text-amber-300">
               {currentPuzzle.rating} Elo
             </span>
           </div>
 
           <div>
-            <h1 className="text-lg font-bold text-charcoal-100 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-emerald-400" />
+            <h1 className="text-lg font-black text-charcoal-100 flex items-center gap-2 tracking-tight">
+              <Zap className="w-5 h-5 text-emerald-400" />
               <span>{currentPuzzle.theme}</span>
             </h1>
-            <p className="text-xs text-charcoal-400 mt-1">{currentPuzzle.description}</p>
+            <p className="text-xs text-charcoal-300 mt-1 leading-relaxed">{currentPuzzle.description}</p>
           </div>
 
-          {/* Status Banners */}
+          {/* Status Feedback Banners */}
           {status === 'solved' && (
-            <div className="p-3 bg-emerald-950/60 border border-emerald-800/60 rounded text-emerald-300 flex items-start gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <div>
-                <div className="font-bold">Puzzle Solved Accurately!</div>
-                <div className="text-[11px] text-emerald-200/90 mt-0.5">
-                  Master calculation confirmed. Solution: {currentPuzzle.moves.join(' ')}
-                </div>
+            <div className="p-4 bg-emerald-950/60 border border-emerald-600/70 rounded-xl text-emerald-200 flex flex-col gap-2 shadow-md animate-fade-in">
+              <div className="flex items-center gap-2 font-black text-emerald-300 text-sm">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                <span>Tactical Solution Solved Accurately!</span>
+              </div>
+              <p className="text-xs text-emerald-100/90 leading-relaxed font-sans">
+                Master calculation confirmed. Complete solution: <strong className="font-mono text-emerald-300">{currentPuzzle.moves.join(' ')}</strong>
+              </p>
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={handleNextPuzzle}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 text-xs"
+                >
+                  <span>Next Puzzle</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
           )}
 
           {status === 'failed' && (
-            <div className="p-3 bg-rose-950/60 border border-rose-800/60 rounded text-rose-300 flex items-start gap-2">
-              <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-              <div>
-                <div className="font-bold">Suboptimal Move — That is not the best line</div>
-                <div className="text-[11px] text-rose-200/90 mt-0.5">
-                  Click "Try Again" or request a progressive hint to recalculate.
-                </div>
+            <div className="p-4 bg-rose-950/60 border border-rose-700/60 rounded-xl text-rose-200 flex flex-col gap-2 shadow-md animate-fade-in">
+              <div className="flex items-center gap-2 font-black text-rose-300 text-sm">
+                <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />
+                <span>Suboptimal Move — That is not the best line</span>
               </div>
+              <p className="text-xs text-rose-200/90 leading-relaxed font-sans">
+                The engine refutes that move. Look for forcing checks, captures, or unpinning ideas. Click "Try Again" or request a progressive hint.
+              </p>
+              <button
+                onClick={handleRetry}
+                className="self-start text-xs font-bold text-amber-300 hover:underline flex items-center gap-1 mt-1"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Try Again</span>
+              </button>
             </div>
           )}
 
           {/* 3-Tier Progressive Hint System */}
-          <div className="bg-charcoal-850 border border-charcoal-800 rounded p-3 flex flex-col gap-2">
+          <div className="bg-charcoal-850 border border-charcoal-800 rounded-xl p-4 flex flex-col gap-2.5 shadow-inner">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-charcoal-200 flex items-center gap-1.5">
-                <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                <span>Intelligent 3-Tier Hints</span>
+              <span className="font-bold text-charcoal-200 text-xs flex items-center gap-1.5">
+                <Lightbulb className="w-4 h-4 text-amber-400" />
+                <span>Socratic 3-Tier Hint Engine</span>
               </span>
               <button
                 onClick={revealNextHint}
                 disabled={hintTier >= 3}
-                className="text-[11px] font-semibold text-emerald-400 hover:underline disabled:opacity-40"
+                className="text-xs font-bold text-emerald-400 hover:text-emerald-300 disabled:opacity-40 transition-colors"
               >
-                {hintTier === 0 ? 'Reveal Hint 1' : hintTier === 1 ? 'Reveal Hint 2' : hintTier === 2 ? 'Reveal Final Hint' : 'All Hints Revealed'}
+                {hintTier === 0 ? 'Reveal Hint 1' : hintTier === 1 ? 'Reveal Hint 2' : hintTier === 2 ? 'Reveal Final Move' : 'All Hints Revealed'}
               </button>
             </div>
 
-            {hintTier >= 1 && (
-              <div className="p-2 bg-charcoal-800/60 rounded border border-charcoal-750 text-[11px] text-charcoal-300">
-                <span className="font-semibold text-amber-300">Hint 1 (Motif): </span>
-                {currentPuzzle.hints[0]}
-              </div>
-            )}
-            {hintTier >= 2 && (
-              <div className="p-2 bg-charcoal-800/60 rounded border border-charcoal-750 text-[11px] text-charcoal-300">
-                <span className="font-semibold text-sky-300">Hint 2 (Target): </span>
-                {currentPuzzle.hints[1]}
-              </div>
-            )}
-            {hintTier >= 3 && (
-              <div className="p-2 bg-charcoal-800/60 rounded border border-charcoal-750 text-[11px] text-charcoal-300">
-                <span className="font-semibold text-emerald-300">Hint 3 (Action): </span>
-                {currentPuzzle.hints[2]}
-              </div>
-            )}
+            <div className="space-y-1.5 text-xs">
+              {hintTier >= 1 && (
+                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
+                  <span className="font-bold text-amber-400">Hint 1 (Tactical Theme): </span>
+                  {currentPuzzle.theme} — Identify which opponent piece is overloaded or undefended.
+                </div>
+              )}
+              {hintTier >= 2 && (
+                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
+                  <span className="font-bold text-amber-400">Hint 2 (Piece to Move): </span>
+                  Focus your calculation on move: <strong className="font-mono text-emerald-300">{currentPuzzle.moves[0].slice(0, 1) || 'Pawn/Piece'}</strong>!
+                </div>
+              )}
+              {hintTier >= 3 && (
+                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
+                  <span className="font-bold text-emerald-400">Final Hint (Key Move): </span>
+                  The master move is <strong className="font-mono text-emerald-300">{currentPuzzle.moves[0]}</strong>.
+                </div>
+              )}
+              {hintTier === 0 && (
+                <p className="text-charcoal-400 text-xs italic">
+                  Calculate first! If you get stuck, reveal hints progressively to train your pattern recognition without spoiling the solution.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Footer actions */}
-        <div className="pt-4 border-t border-charcoal-800 flex gap-2 justify-end">
-          {status === 'failed' && (
-            <button
-              onClick={handleRetry}
-              className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-200 font-semibold rounded flex items-center gap-1.5"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span>Try Again</span>
-            </button>
-          )}
-
+        {/* Footer controls */}
+        <div className="flex items-center justify-between pt-3 border-t border-charcoal-800">
+          <button
+            onClick={handleRetry}
+            className="px-3.5 py-2 rounded-xl bg-charcoal-800 hover:bg-charcoal-750 text-charcoal-200 font-bold transition-all text-xs border border-charcoal-700"
+          >
+            Restart Puzzle
+          </button>
           <button
             onClick={handleNextPuzzle}
-            className="px-5 py-2 bg-chess-green hover:bg-chess-greenLight text-white font-semibold rounded shadow flex items-center gap-1.5 transition-all hover:scale-105"
+            className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-750 text-charcoal-200 font-bold rounded-xl flex items-center gap-1.5 transition-all text-xs border border-charcoal-700"
           >
-            <span>Next Puzzle</span>
+            <span>Skip Puzzle</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>

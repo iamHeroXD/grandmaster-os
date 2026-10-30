@@ -3,42 +3,60 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-charcoal-950 text-charcoal-100 antialiased font-sans;
-    user-select: none;
-    -webkit-user-select: none;
+  :root {
+    color-scheme: dark;
   }
 
-  /* Custom scrollbar */
+  body {
+    @apply bg-charcoal-950 text-charcoal-100 antialiased font-sans select-none overflow-hidden h-screen w-screen;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Sleek Desktop Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #131517;
+    background: #0f1115;
   }
   ::-webkit-scrollbar-thumb {
-    background: #32373d;
-    border-radius: 3px;
+    background: #2a313a;
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #484f57;
+    background: #404b58;
   }
 }
 
-/* Board Themes */
+/* Board Themes & Coordinate Styles */
+.theme-tournament .square-light {
+  background-color: #eeeed2;
+}
+.theme-tournament .square-dark {
+  background-color: #769656;
+}
+.theme-tournament .coord-light {
+  color: #769656;
+}
+.theme-tournament .coord-dark {
+  color: #eeeed2;
+}
+
 .theme-wood .square-light {
   background-color: #ecdab9;
 }
 .theme-wood .square-dark {
   background-color: #b88b4a;
 }
-
-.theme-tournament .square-light {
-  background-color: #eeeed2;
+.theme-wood .coord-light {
+  color: #8c5d2b;
 }
-.theme-tournament .square-dark {
-  background-color: #769656;
+.theme-wood .coord-dark {
+  color: #fbf2db;
 }
 
 .theme-slate .square-light {
@@ -47,6 +65,12 @@
 .theme-slate .square-dark {
   background-color: #8ca1a9;
 }
+.theme-slate .coord-light {
+  color: #6b7f87;
+}
+.theme-slate .coord-dark {
+  color: #f1f5f7;
+}
 
 .theme-monochrome .square-light {
   background-color: #e5e5e5;
@@ -54,19 +78,50 @@
 .theme-monochrome .square-dark {
   background-color: #6a6a6a;
 }
+.theme-monochrome .coord-light {
+  color: #555555;
+}
+.theme-monochrome .coord-dark {
+  color: #f5f5f5;
+}
 
 .theme-highcontrast .square-light {
   background-color: #ffffff;
 }
 .theme-highcontrast .square-dark {
-  background-color: #2b2b2b;
+  background-color: #1e293b;
+}
+.theme-highcontrast .coord-light {
+  color: #1e293b;
+}
+.theme-highcontrast .coord-dark {
+  color: #ffffff;
 }
 
-/* Dragging animation */
+/* Subtle piece drag states */
 .piece-dragging {
   cursor: grabbing !important;
-  opacity: 0.85;
-  transform: scale(1.08);
-  transition: transform 0.05s ease;
+  opacity: 0.9;
+  transform: scale(1.05);
   z-index: 50;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+}
+
+/* Custom desktop keyframe animations */
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+@keyframes glow-green {
+  0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(16, 185, 129, 0.45); }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-glow-green {
+  animation: glow-green 2.5s ease-in-out infinite;
 }

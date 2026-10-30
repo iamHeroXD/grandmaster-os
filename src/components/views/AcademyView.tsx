@@ -7,7 +7,17 @@ import { StorageService } from '../../services/storage';
 import { Square, PieceType, Color } from '../../types/chess';
 import { ChessBoard } from '../board/ChessBoard';
 import { ConfettiEffect } from '../common/ConfettiEffect';
-import { GraduationCap, CheckCircle2, ChevronRight, Sparkles, AlertCircle, HelpCircle } from 'lucide-react';
+import {
+  GraduationCap,
+  CheckCircle2,
+  ChevronRight,
+  Sparkles,
+  AlertCircle,
+  HelpCircle,
+  Lightbulb,
+  RotateCcw,
+  ArrowRight,
+} from 'lucide-react';
 
 interface AcademyViewProps {
   settings: UserSettings;
@@ -29,6 +39,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
   const [legalMoves, setLegalMoves] = useState<Square[]>([]);
   const [lastMove, setLastMove] = useState<{ from: Square; to: Square } | null>(null);
+  const [hintArrow, setHintArrow] = useState<{ from: Square; to: Square } | null>(null);
 
   // Lesson exercise state
   const [exerciseStatus, setExerciseStatus] = useState<'idle' | 'correct' | 'incorrect'>('idle');
@@ -38,7 +49,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
   // Group lessons by stage
   const stages = [1, 2, 3, 4, 5, 6, 7];
   const stageTitles: Record<number, string> = {
-    1: 'Stage 1: Foundations',
+    1: 'Stage 1: Foundations of Chess',
     2: 'Stage 2: Beginner Tactics',
     3: 'Stage 3: Essential Strategy',
     4: 'Stage 4: Intermediate Calculation',
@@ -56,6 +67,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
     setSelectedSquare(null);
     setLegalMoves([]);
     setLastMove(null);
+    setHintArrow(null);
     setExerciseStatus('idle');
     setShowHint(false);
   };
@@ -97,6 +109,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
     setLastMove({ from, to });
     setSelectedSquare(null);
     setLegalMoves([]);
+    setHintArrow(null);
 
     // Validate expected move
     const playedSan = res.san;
@@ -119,28 +132,46 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
     }
   };
 
+  const handleRevealHint = () => {
+    setShowHint(true);
+    // Parse expected move to give a visual clue
+    const exp = selectedLesson.expectedMove;
+    if (exp === 'O-O') {
+      setHintArrow({ from: 'e1', to: 'g1' });
+    } else if (exp === 'O-O-O') {
+      setHintArrow({ from: 'e1', to: 'c1' });
+    } else if (exp.length >= 2) {
+      // Find candidate piece that can deliver expected move
+      const targetSq = exp.slice(-2) as Square;
+      if (targetSq.length === 2) {
+        setHintArrow({ from: (selectedLesson.initialFen.includes('w') ? 'e2' : 'e7') as Square, to: targetSq });
+      }
+    }
+  };
+
+  const handleNextLesson = () => {
+    const currentIdx = ACADEMY_LESSONS.findIndex((l) => l.id === selectedLesson.id);
+    if (currentIdx !== -1 && currentIdx + 1 < ACADEMY_LESSONS.length) {
+      selectLesson(ACADEMY_LESSONS[currentIdx + 1]);
+    }
+  };
+
   const resetExercise = () => {
-    const newController = new ChessGameController(selectedLesson.initialFen);
-    setController(newController);
-    setBoard(newController.getBoard());
-    setTurn(newController.getTurn());
-    setSelectedSquare(null);
-    setLegalMoves([]);
-    setLastMove(null);
-    setExerciseStatus('idle');
+    selectLesson(selectedLesson);
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex overflow-hidden p-3 md:p-4 gap-4 max-w-7xl mx-auto w-full text-xs">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
+
       {/* Left Lesson Navigation Rail */}
-      <div className="w-72 bg-charcoal-900 border border-charcoal-800 rounded-lg flex flex-col overflow-y-auto p-2 text-xs divide-y divide-charcoal-800/60">
+      <div className="w-72 bg-charcoal-900 border border-charcoal-800 rounded-2xl flex flex-col overflow-y-auto p-2.5 text-xs divide-y divide-charcoal-800/60 shadow-lg shrink-0">
         <div className="p-2 pb-3">
-          <div className="flex items-center gap-2 text-charcoal-200 font-bold">
+          <div className="flex items-center gap-2 text-charcoal-100 font-extrabold text-sm">
             <GraduationCap className="w-4 h-4 text-sky-400" />
-            <span>Master Academy Curriculum</span>
+            <span>Academy Curriculum</span>
           </div>
-          <p className="text-[11px] text-charcoal-400 mt-1">
+          <p className="text-xs text-charcoal-300 mt-1">
             Progressive 7-stage master course with interactive board exercises.
           </p>
         </div>
@@ -150,11 +181,11 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
           if (stageLessons.length === 0) return null;
 
           return (
-            <div key={stg} className="py-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-charcoal-500 font-bold px-2 block mb-1">
+            <div key={stg} className="py-2.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-charcoal-400 font-extrabold px-2 block mb-1.5">
                 {stageTitles[stg]}
               </span>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 {stageLessons.map((les) => {
                   const isCompleted = lessonProgress[les.id]?.completed;
                   const isSelected = selectedLesson.id === les.id;
@@ -163,21 +194,21 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
                     <button
                       key={les.id}
                       onClick={() => selectLesson(les)}
-                      className={`flex items-center justify-between px-2.5 py-2 rounded text-left transition-colors ${
+                      className={`flex items-center justify-between px-2.5 py-2 rounded-xl text-left transition-all ${
                         isSelected
-                          ? 'bg-sky-950/60 text-sky-200 font-semibold border-l-2 border-sky-400'
-                          : 'text-charcoal-300 hover:bg-charcoal-800/60'
+                          ? 'bg-sky-950/70 text-sky-200 font-bold border border-sky-500/60 shadow-sm'
+                          : 'text-charcoal-300 hover:text-charcoal-100 hover:bg-charcoal-850/80 border border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2 truncate">
                         {isCompleted ? (
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         ) : (
-                          <div className="w-1.5 h-1.5 rounded-full bg-charcoal-600 shrink-0" />
+                          <div className="w-2 h-2 rounded-full bg-charcoal-600 shrink-0" />
                         )}
-                        <span className="truncate">{les.title}</span>
+                        <span className="truncate text-xs font-semibold">{les.title}</span>
                       </div>
-                      <ChevronRight className="w-3 h-3 text-charcoal-600 shrink-0" />
+                      <ChevronRight className="w-3.5 h-3.5 text-charcoal-500 shrink-0" />
                     </button>
                   );
                 })}
@@ -188,8 +219,8 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
       </div>
 
       {/* Main Lesson Exercise Area */}
-      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
-        {/* Interactive Board */}
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-5 min-h-0 items-start">
+        {/* Interactive Board Column */}
         <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 580px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
           <ChessBoard
             board={board}
@@ -199,6 +230,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             selectedSquare={selectedSquare}
             legalMoves={legalMoves}
             lastMove={lastMove}
+            hintArrow={hintArrow}
             showCoordinates={settings.showCoordinates}
             showLegalDots={settings.showLegalDots}
             onSquareClick={handleSquareClick}
@@ -207,88 +239,99 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             maxBoardHeightOffset={160}
           />
 
-          <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-400">
-            <span>Side to move: {turn === 'w' ? 'White' : 'Black'}</span>
+          <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-300 font-medium">
+            <span>Side to move: <strong className="text-emerald-400">{turn === 'w' ? 'White' : 'Black'}</strong></span>
             <button
               onClick={resetExercise}
-              className="text-sky-400 hover:underline font-semibold"
+              className="text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 transition-colors"
             >
-              Reset Position
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset Position</span>
             </button>
           </div>
         </div>
 
-        {/* Lesson Lesson Content & Master Explanations */}
-        <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-lg p-5 flex flex-col gap-4 overflow-y-auto text-xs">
+        {/* Lesson Content & Master Explanations */}
+        <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto text-xs shadow-lg">
           <div>
-            <div className="text-[10px] font-mono text-sky-400 font-semibold uppercase tracking-wider">
+            <div className="text-[11px] font-mono text-sky-400 font-extrabold uppercase tracking-wider">
               {selectedLesson.stageTitle}
             </div>
-            <h1 className="text-lg font-bold text-charcoal-100 mt-0.5">
+            <h1 className="text-lg font-black text-charcoal-100 mt-0.5 tracking-tight">
               {selectedLesson.title}
             </h1>
-            <p className="text-xs text-charcoal-400 mt-1">{selectedLesson.summary}</p>
+            <p className="text-xs text-charcoal-300 mt-1 leading-relaxed">{selectedLesson.summary}</p>
           </div>
 
           {/* Master Concept Body */}
-          <div className="p-3 bg-charcoal-850 border border-charcoal-800 rounded leading-relaxed text-charcoal-200">
-            <h3 className="font-semibold text-charcoal-100 mb-1 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+          <div className="p-4 bg-charcoal-850 border border-charcoal-800 rounded-xl leading-relaxed text-charcoal-200">
+            <h3 className="font-bold text-charcoal-100 mb-1.5 flex items-center gap-1.5 text-xs">
+              <Sparkles className="w-4 h-4 text-sky-400" />
               <span>Core Principle</span>
             </h3>
-            <p className="text-[11px]">{selectedLesson.concept}</p>
+            <p className="text-xs text-charcoal-200 leading-normal">{selectedLesson.concept}</p>
           </div>
 
           {/* Interactive Challenge Prompt */}
-          <div className="p-3 bg-sky-950/30 border border-sky-800/40 rounded flex flex-col gap-2">
-            <div className="font-semibold text-sky-300 flex items-center gap-1.5">
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Your Exercise</span>
+          <div className="p-4 bg-sky-950/30 border border-sky-800/40 rounded-xl flex flex-col gap-2">
+            <div className="font-bold text-sky-300 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5">
+                <HelpCircle className="w-4 h-4" />
+                <span>Your Interactive Exercise</span>
+              </div>
+              <button
+                onClick={handleRevealHint}
+                className="text-amber-400 hover:text-amber-300 font-bold text-xs flex items-center gap-1 transition-colors"
+              >
+                <Lightbulb className="w-3.5 h-3.5" />
+                <span>Show Hint</span>
+              </button>
             </div>
-            <p className="text-[11px] text-sky-200/90 font-medium">
+            <p className="text-xs text-sky-200 font-medium leading-relaxed">
               {selectedLesson.interactiveMovePrompt}
             </p>
-
-            {/* Exercise feedback notification */}
-            {exerciseStatus === 'correct' && (
-              <div className="mt-2 p-2.5 bg-emerald-950/60 border border-emerald-800/60 rounded text-emerald-300 flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold">Correct Move! Lesson Mastered.</div>
-                  <div className="text-[11px] text-emerald-200/90 mt-0.5">
-                    {selectedLesson.explanationOnCorrect}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {exerciseStatus === 'incorrect' && (
-              <div className="mt-2 p-2.5 bg-rose-950/60 border border-rose-800/60 rounded text-rose-300 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <div>
-                  <div className="font-bold">Suboptimal Move</div>
-                  <div className="text-[11px] text-rose-200/90 mt-0.5">
-                    {selectedLesson.commonMistake} Click "Reset Position" and try again.
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Hint disclosure */}
-          <div className="mt-auto pt-3 border-t border-charcoal-800 flex items-center justify-between">
-            <button
-              onClick={() => setShowHint(!showHint)}
-              className="text-sky-400 hover:underline font-semibold"
-            >
-              {showHint ? 'Hide Hint' : 'Show Hint'}
-            </button>
-            {showHint && (
-              <span className="text-[11px] text-charcoal-300 italic">
-                Expected: {selectedLesson.expectedMove}
-              </span>
-            )}
-          </div>
+          {/* Status Feedback Banners */}
+          {exerciseStatus === 'correct' && (
+            <div className="p-4 bg-emerald-950/60 border border-emerald-600/70 rounded-xl flex flex-col gap-2 animate-fade-in shadow-md">
+              <div className="font-black text-emerald-300 text-sm flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <span>Master Move Executed!</span>
+              </div>
+              <p className="text-xs text-emerald-100 leading-relaxed font-sans">
+                {selectedLesson.explanationOnCorrect}
+              </p>
+              <div className="pt-2 flex justify-end">
+                <button
+                  onClick={handleNextLesson}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 text-xs"
+                >
+                  <span>Next Lesson</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {exerciseStatus === 'incorrect' && (
+            <div className="p-4 bg-rose-950/50 border border-rose-700/60 rounded-xl flex flex-col gap-2 animate-fade-in shadow-md">
+              <div className="font-black text-rose-300 text-sm flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-400" />
+                <span>Not the optimal master move</span>
+              </div>
+              <p className="text-xs text-rose-200/90 leading-relaxed font-sans">
+                {selectedLesson.commonMistake || 'Take another look at the position, identify the active targets, and try again!'}
+              </p>
+              <button
+                onClick={resetExercise}
+                className="self-start text-xs font-bold text-amber-300 hover:underline flex items-center gap-1 mt-1"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Try Again</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

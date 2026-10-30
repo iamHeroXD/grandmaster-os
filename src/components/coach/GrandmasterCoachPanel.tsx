@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { GrandmasterCoachService } from '../../services/coachService';
+import { GrandmasterCoachService, CoachPersona } from '../../services/coachService';
 import { MoveRecord, EngineEvaluation } from '../../types/chess';
-import { GraduationCap, HelpCircle, Sparkles, AlertCircle, Compass, Brain } from 'lucide-react';
+import { GraduationCap, HelpCircle, Sparkles, AlertCircle, Compass, Brain, Swords, ShieldAlert } from 'lucide-react';
 
 interface GrandmasterCoachPanelProps {
   currentFen: string;
   lastMove?: MoveRecord;
   evaluation?: EngineEvaluation;
   onSelectCandidateMove?: (uci: string) => void;
+  onShowThreatArrow?: () => void;
 }
 
 export const GrandmasterCoachPanel: React.FC<GrandmasterCoachPanelProps> = ({
@@ -15,9 +16,11 @@ export const GrandmasterCoachPanel: React.FC<GrandmasterCoachPanelProps> = ({
   lastMove,
   evaluation,
   onSelectCandidateMove,
+  onShowThreatArrow,
 }) => {
   const [activeQuestion, setActiveQuestion] = useState<string | null>(null);
   const [coachResponse, setCoachResponse] = useState<string | null>(null);
+  const [activePersona, setActivePersona] = useState<CoachPersona>('elena');
 
   const handleAsk = (
     key:
@@ -35,104 +38,143 @@ export const GrandmasterCoachPanel: React.FC<GrandmasterCoachPanelProps> = ({
       currentFen,
       lastMove,
       evaluation?.bestMoveUci,
-      evaluation?.scoreCp
+      evaluation?.scoreCp,
+      activePersona
     );
     setCoachResponse(ans);
+
+    if (key === 'what_threat' && onShowThreatArrow) {
+      onShowThreatArrow();
+    }
   };
 
+  const personas: { id: CoachPersona; name: string; tag: string }[] = [
+    { id: 'elena', name: 'Elena', tag: 'Teacher' },
+    { id: 'kasparov', name: 'Kasparov', tag: 'Aggressive' },
+    { id: 'karpov', name: 'Karpov', tag: 'Positional' },
+    { id: 'tal', name: 'Tal', tag: 'Tactician' },
+  ];
+
   return (
-    <div className="flex flex-col h-full bg-charcoal-900 border border-charcoal-800 rounded-lg p-3 text-xs overflow-y-auto">
-      {/* Coach Header */}
-      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-charcoal-800">
-        <div className="w-6 h-6 rounded bg-emerald-950/60 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-sm"><GraduationCap className="w-3.5 h-3.5" /></div>
-        <div>
-          <div className="font-semibold text-charcoal-100 flex items-center gap-1.5">
-            <span>The Grandmaster Coach</span>
-            <span className="text-[10px] bg-charcoal-800 text-charcoal-400 px-1.5 rounded">Local Heuristic</span>
+    <div className="flex flex-col h-full bg-charcoal-900 border border-charcoal-800 rounded-xl p-3 text-xs overflow-y-auto shadow-md">
+      {/* Coach Header & Persona Selector */}
+      <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-charcoal-800">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-emerald-950/70 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-sm shrink-0">
+            <GraduationCap className="w-4 h-4" />
           </div>
-          <div className="text-[10px] text-charcoal-500">Tournament Mentor & Calculation Guide</div>
+          <div>
+            <div className="font-bold text-charcoal-100 flex items-center gap-1.5 leading-none">
+              <span>Grandmaster Coach</span>
+            </div>
+            <div className="text-[10px] text-charcoal-400 mt-0.5">Tactical Mentor & Calculation Guide</div>
+          </div>
+        </div>
+
+        {/* Persona pills */}
+        <div className="flex items-center gap-1 bg-charcoal-850 p-0.5 rounded-lg border border-charcoal-750">
+          {personas.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => {
+                setActivePersona(p.id);
+                if (activeQuestion) {
+                  const ans = GrandmasterCoachService.answerQuestion(
+                    activeQuestion as any,
+                    currentFen,
+                    lastMove,
+                    evaluation?.bestMoveUci,
+                    evaluation?.scoreCp,
+                    p.id
+                  );
+                  setCoachResponse(ans);
+                }
+              }}
+              title={`${p.name} (${p.tag})`}
+              className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${
+                activePersona === p.id
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-charcoal-400 hover:text-charcoal-200'
+              }`}
+            >
+              {p.name}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Dynamic Position / Mistake Notice */}
       {lastMove?.classification && lastMove.classification !== 'best' && lastMove.classification !== 'good' && (
-        <div className="mb-3 p-2 bg-rose-950/40 border border-rose-800/40 rounded flex items-start gap-2 text-rose-200">
+        <div className="mb-2.5 p-2 bg-rose-950/40 border border-rose-800/50 rounded-lg flex items-start gap-2 text-rose-200 shadow-sm">
           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
           <div>
-            <div className="font-semibold text-rose-300">
+            <div className="font-bold text-rose-300 text-xs">
               Notice: {lastMove.san} was a {lastMove.classification}
             </div>
-            <div className="text-[11px] text-rose-200/80 mt-0.5">
-              Engine preferred {lastMove.bestMove || 'a better candidate'}. Click below to understand why.
+            <div className="text-[11px] text-rose-200/90 mt-0.5 leading-tight">
+              Engine preferred <span className="font-mono font-bold text-emerald-300">{lastMove.bestMove || 'a better move'}</span>.
             </div>
           </div>
         </div>
       )}
 
       {/* Interactive Question Prompts */}
-      <div className="flex flex-col gap-1.5 mb-3">
-        <span className="text-[10px] uppercase font-bold text-charcoal-500 tracking-wider">
+      <div className="flex flex-col gap-1.5 mb-2.5">
+        <span className="text-[10px] uppercase font-bold text-charcoal-400 tracking-wider">
           Ask The Grandmaster
         </span>
-        <button
-          onClick={() => handleAsk('why_mistake')}
-          className="text-left px-2.5 py-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-300 hover:text-charcoal-100 transition-colors flex items-center justify-between"
-        >
-          <span>Why was my move a mistake?</span>
-          <HelpCircle className="w-3.5 h-3.5 text-charcoal-500" />
-        </button>
 
         <button
           onClick={() => handleAsk('what_threat')}
-          className="text-left px-2.5 py-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-300 hover:text-charcoal-100 transition-colors flex items-center justify-between"
+          className="text-left px-2.5 py-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
         >
-          <span>What was my opponent threatening?</span>
-          <AlertCircle className="w-3.5 h-3.5 text-charcoal-500" />
+          <span className="font-medium text-xs">What is the immediate threat?</span>
+          <ShieldAlert className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
         </button>
 
         <button
           onClick={() => handleAsk('what_plan')}
-          className="text-left px-2.5 py-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-300 hover:text-charcoal-100 transition-colors flex items-center justify-between"
+          className="text-left px-2.5 py-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
         >
-          <span>What plan should I follow here?</span>
-          <Compass className="w-3.5 h-3.5 text-charcoal-500" />
+          <span className="font-medium text-xs">What strategic plan should I follow?</span>
+          <Compass className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
+        </button>
+
+        <button
+          onClick={() => handleAsk('candidate_moves')}
+          className="text-left px-2.5 py-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
+        >
+          <span className="font-medium text-xs">Which 3 candidate moves to calculate?</span>
+          <Swords className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
         </button>
 
         <button
           onClick={() => handleAsk('give_hint')}
-          className="text-left px-2.5 py-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-300 hover:text-charcoal-100 transition-colors flex items-center justify-between"
+          className="text-left px-2.5 py-1.5 rounded-lg bg-charcoal-850 hover:bg-emerald-950/40 border border-charcoal-750 hover:border-emerald-600/50 text-charcoal-200 hover:text-emerald-300 transition-all flex items-center justify-between group"
         >
-          <span>Give me a hint without revealing move</span>
-          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-        </button>
-
-        <button
-          onClick={() => handleAsk('quiz_me')}
-          className="text-left px-2.5 py-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-300 hover:text-charcoal-100 transition-colors flex items-center justify-between"
-        >
-          <span>Quiz me on the idea behind this position</span>
-          <Brain className="w-3.5 h-3.5 text-amber-400" />
+          <span className="font-medium text-xs">Give me a pedagogical hint</span>
+          <Sparkles className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
         </button>
       </div>
 
       {/* Response Box */}
       {coachResponse && (
-        <div className="mb-3 p-3 bg-charcoal-850 border border-charcoal-750 rounded leading-relaxed text-charcoal-200">
-          <div className="font-semibold text-emerald-400 mb-1 flex items-center gap-1.5 text-[11px]">
-            <Sparkles className="w-3 h-3" />
-            <span>Master Coach Insight</span>
+        <div className="mb-2.5 p-3 bg-charcoal-850 border border-charcoal-750 rounded-xl leading-relaxed text-charcoal-200 text-xs shadow-inner">
+          <div className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5 text-xs">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Master Coach Advice</span>
           </div>
-          <p className="text-[11px]">{coachResponse}</p>
+          <p className="whitespace-pre-line text-xs text-charcoal-200 leading-normal">{coachResponse}</p>
         </div>
       )}
 
       {/* Candidate Lines / Stockfish Evaluation */}
       {evaluation && evaluation.candidateLines.length > 0 && (
         <div className="mt-auto pt-2 border-t border-charcoal-800">
-          <span className="text-[10px] uppercase font-bold text-charcoal-500 tracking-wider block mb-1.5">
+          <span className="text-[10px] uppercase font-bold text-charcoal-400 tracking-wider block mb-1">
             Engine Candidate Lines (Depth {evaluation.depth})
           </span>
-          <div className="flex flex-col gap-1 font-mono text-[11px]">
+          <div className="flex flex-col gap-1 font-mono text-xs">
             {evaluation.candidateLines.map((line, idx) => {
               const score =
                 line.scoreMate !== undefined
@@ -145,16 +187,16 @@ export const GrandmasterCoachPanel: React.FC<GrandmasterCoachPanelProps> = ({
                 <div
                   key={idx}
                   onClick={() => onSelectCandidateMove && line.pv[0] && onSelectCandidateMove(line.pv[0])}
-                  className="flex items-center justify-between p-1.5 rounded bg-charcoal-850 hover:bg-charcoal-800 cursor-pointer border border-charcoal-800 transition-colors"
+                  className="flex items-center justify-between p-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 cursor-pointer border border-charcoal-800 hover:border-emerald-500/40 transition-colors"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-charcoal-500 text-[10px]">#{idx + 1}</span>
+                    <span className="text-charcoal-500 text-[10px] font-bold">#{idx + 1}</span>
                     <span className="font-bold text-emerald-300">{line.pv[0]}</span>
-                    <span className="text-charcoal-400 text-[10px] truncate max-w-[130px]">
+                    <span className="text-charcoal-400 text-[10px] truncate max-w-[120px]">
                       {line.pv.slice(1, 4).join(' ')}
                     </span>
                   </div>
-                  <span className="font-bold text-charcoal-200">{score}</span>
+                  <span className="font-bold text-charcoal-200 text-xs">{score}</span>
                 </div>
               );
             })}

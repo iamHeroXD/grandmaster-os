@@ -7,6 +7,7 @@ import { Sidebar, NavTab } from './components/layout/Sidebar';
 import { StatusBar } from './components/layout/StatusBar';
 import { FirstRunModal } from './components/modals/FirstRunModal';
 import { ConfirmResetModal } from './components/modals/ConfirmResetModal';
+import { LoadingScreen } from './components/common/LoadingScreen';
 
 // Views
 import { HomeView } from './components/views/HomeView';
@@ -39,6 +40,7 @@ export const App: React.FC = () => {
   const [activeAnalysisGame, setActiveAnalysisGame] = useState<GameSummary | null>(games[0] || null);
   const [showFirstRunModal, setShowFirstRunModal] = useState<boolean>(!profile);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(true);
 
   // Desktop heartbeat to keep offline supervisor alive while window is active
   useEffect(() => {
@@ -193,6 +195,14 @@ export const App: React.FC = () => {
 
       {/* Desktop Status Bar */}
       <StatusBar activeTab={activeTab} settings={settings} />
+
+      {/* Desktop Startup Loading Screen */}
+      {showLoadingScreen && (
+        <LoadingScreen
+          onFinished={() => setShowLoadingScreen(false)}
+          username={profile?.username || 'Hero.X'}
+        />
+      )}
 
       {/* First-Run Onboarding Modal */}
       {showFirstRunModal && (

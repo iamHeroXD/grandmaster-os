@@ -17,6 +17,8 @@ import {
   Sparkles,
   Trophy,
   Lightbulb,
+  Shield,
+  Eye,
 } from 'lucide-react';
 
 interface TacticsViewProps {
@@ -123,7 +125,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
         };
         StorageService.recordPuzzleAttempt(attempt);
       } else {
-        // Computer plays opponent reply in multi-move puzzle
+        // Opponent reply in multi-move puzzle
         const opponentReply = currentPuzzle.moves[nextStep];
         setTimeout(() => {
           controller.makeSanMove(opponentReply);
@@ -162,7 +164,6 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
       const nextTier = hintTier + 1;
       setHintTier(nextTier);
 
-      // If tier 3, show visual arrow
       if (nextTier >= 2) {
         const nextExpected = currentPuzzle.moves[moveStep];
         if (nextExpected && nextExpected.length >= 2) {
@@ -179,7 +180,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
   };
 
   return (
-    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-5 max-w-7xl mx-auto w-full min-h-0 items-start text-xs">
+    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-5 gap-5 max-w-[1400px] mx-auto w-full min-h-0 items-start text-xs font-sans">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
 
       {/* Board Column */}
@@ -202,7 +203,7 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           maxBoardHeightOffset={160}
         />
 
-        <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-300 font-medium">
+        <div className="flex items-center justify-between w-full px-2 text-xs text-slate-400 font-medium">
           <span>{currentPuzzle.sideToMove === 'w' ? 'White to move and win' : 'Black to move and win'}</span>
           <button
             onClick={handleRetry}
@@ -215,34 +216,43 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
       </div>
 
       {/* Details & Hint Engine */}
-      <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-2xl p-5 flex flex-col justify-between gap-4 overflow-y-auto shadow-lg">
+      <div className="flex-1 bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col justify-between gap-4 overflow-y-auto shadow-sm">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-charcoal-800 pb-3">
-            <span className="text-[11px] font-mono text-emerald-400 font-extrabold uppercase tracking-wider flex items-center gap-1.5">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[#1b2536] pb-3">
+            <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Tactical Exercise #{puzzleIndex + 1} of {CURATED_PUZZLES.length}</span>
             </span>
-            <span className="px-2.5 py-0.5 rounded-full bg-amber-950/70 border border-amber-700/60 font-mono text-xs font-black text-amber-300">
+            <span className="px-2.5 py-0.5 rounded-full bg-[#1b2536] border border-[#26354a] font-mono text-xs font-black text-amber-300">
               {currentPuzzle.rating} Elo
             </span>
           </div>
 
           <div>
-            <h1 className="text-lg font-black text-charcoal-100 flex items-center gap-2 tracking-tight">
+            <h1 className="text-lg font-black text-slate-100 flex items-center gap-2 tracking-tight">
               <Zap className="w-5 h-5 text-emerald-400" />
               <span>{currentPuzzle.theme}</span>
             </h1>
-            <p className="text-xs text-charcoal-300 mt-1 leading-relaxed">{currentPuzzle.description}</p>
+            <p className="text-xs text-slate-400 mt-1 leading-relaxed">{currentPuzzle.description}</p>
+          </div>
+
+          {/* CCT Protocol Reminder Pills */}
+          <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#141c28] border border-[#202b3c] text-[11px] text-slate-300">
+            <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase">CCT Scan:</span>
+            <span className="px-2 py-0.5 rounded bg-[#10241c] text-emerald-300 font-semibold border border-emerald-800/40">1. Checks</span>
+            <span className="px-2 py-0.5 rounded bg-[#10241c] text-emerald-300 font-semibold border border-emerald-800/40">2. Captures</span>
+            <span className="px-2 py-0.5 rounded bg-[#10241c] text-emerald-300 font-semibold border border-emerald-800/40">3. Threats</span>
           </div>
 
           {/* Status Feedback Banners */}
           {status === 'solved' && (
-            <div className="p-4 bg-emerald-950/60 border border-emerald-600/70 rounded-xl text-emerald-200 flex flex-col gap-2 shadow-md animate-fade-in">
+            <div className="p-4 bg-emerald-950/70 border border-emerald-600 rounded-xl text-emerald-200 flex flex-col gap-2 shadow-md animate-fade-in">
               <div className="flex items-center gap-2 font-black text-emerald-300 text-sm">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                 <span>Tactical Solution Solved Accurately!</span>
               </div>
-              <p className="text-xs text-emerald-100/90 leading-relaxed font-sans">
+              <p className="text-xs text-emerald-100 leading-relaxed font-sans">
                 Master calculation confirmed. Complete solution: <strong className="font-mono text-emerald-300">{currentPuzzle.moves.join(' ')}</strong>
               </p>
               <div className="pt-2 flex justify-end">
@@ -277,9 +287,9 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
           )}
 
           {/* 3-Tier Progressive Hint System */}
-          <div className="bg-charcoal-850 border border-charcoal-800 rounded-xl p-4 flex flex-col gap-2.5 shadow-inner">
+          <div className="bg-[#141c28] border border-[#202b3c] rounded-xl p-4 flex flex-col gap-2.5 shadow-inner">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-charcoal-200 text-xs flex items-center gap-1.5">
+              <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
                 <Lightbulb className="w-4 h-4 text-amber-400" />
                 <span>Socratic 3-Tier Hint Engine</span>
               </span>
@@ -294,26 +304,26 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
 
             <div className="space-y-1.5 text-xs">
               {hintTier >= 1 && (
-                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
-                  <span className="font-bold text-amber-400">Hint 1 (Tactical Theme): </span>
+                <div className="p-2.5 rounded-lg bg-[#182231] text-slate-200 border border-[#243347]">
+                  <span className="font-bold text-amber-400">Hint 1 (Theme): </span>
                   {currentPuzzle.theme} — Identify which opponent piece is overloaded or undefended.
                 </div>
               )}
               {hintTier >= 2 && (
-                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
-                  <span className="font-bold text-amber-400">Hint 2 (Piece to Move): </span>
+                <div className="p-2.5 rounded-lg bg-[#182231] text-slate-200 border border-[#243347]">
+                  <span className="font-bold text-amber-400">Hint 2 (Piece): </span>
                   Focus your calculation on move: <strong className="font-mono text-emerald-300">{currentPuzzle.moves[0].slice(0, 1) || 'Pawn/Piece'}</strong>!
                 </div>
               )}
               {hintTier >= 3 && (
-                <div className="p-2.5 rounded-lg bg-charcoal-800 text-charcoal-200 border border-charcoal-750">
-                  <span className="font-bold text-emerald-400">Final Hint (Key Move): </span>
+                <div className="p-2.5 rounded-lg bg-[#182231] text-slate-200 border border-[#243347]">
+                  <span className="font-bold text-emerald-400">Final Hint: </span>
                   The master move is <strong className="font-mono text-emerald-300">{currentPuzzle.moves[0]}</strong>.
                 </div>
               )}
               {hintTier === 0 && (
-                <p className="text-charcoal-400 text-xs italic">
-                  Calculate first! If you get stuck, reveal hints progressively to train your pattern recognition without spoiling the solution.
+                <p className="text-slate-500 text-xs italic">
+                  Calculate first! Reveal hints progressively to train your pattern recognition without spoiling the solution.
                 </p>
               )}
             </div>
@@ -321,16 +331,16 @@ export const TacticsView: React.FC<TacticsViewProps> = ({ settings }) => {
         </div>
 
         {/* Footer controls */}
-        <div className="flex items-center justify-between pt-3 border-t border-charcoal-800">
+        <div className="flex items-center justify-between pt-3 border-t border-[#1b2536]">
           <button
             onClick={handleRetry}
-            className="px-3.5 py-2 rounded-xl bg-charcoal-800 hover:bg-charcoal-750 text-charcoal-200 font-bold transition-all text-xs border border-charcoal-700"
+            className="px-4 py-2 rounded-xl bg-[#141c28] hover:bg-[#1a2434] text-slate-300 font-bold transition-all text-xs border border-[#202b3c]"
           >
             Restart Puzzle
           </button>
           <button
             onClick={handleNextPuzzle}
-            className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-750 text-charcoal-200 font-bold rounded-xl flex items-center gap-1.5 transition-all text-xs border border-charcoal-700"
+            className="px-4 py-2 bg-[#141c28] hover:bg-[#1a2434] text-slate-200 font-bold rounded-xl flex items-center gap-1.5 transition-all text-xs border border-[#202b3c]"
           >
             <span>Skip Puzzle</span>
             <ArrowRight className="w-3.5 h-3.5" />

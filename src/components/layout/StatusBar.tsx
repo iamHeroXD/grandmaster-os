@@ -1,47 +1,72 @@
 import React from 'react';
-import { Shield, Cpu, Keyboard, Activity } from 'lucide-react';
+import { NavTab } from './Sidebar';
 import { UserSettings } from '../../types/database';
 
 interface StatusBarProps {
-  activeTab: string;
-  settings: UserSettings;
+  activeTab: NavTab;
+  isEngineReady?: boolean;
+  settings?: UserSettings;
 }
 
-export const StatusBar: React.FC<StatusBarProps> = ({ activeTab, settings }) => {
+export const StatusBar: React.FC<StatusBarProps> = ({ activeTab, isEngineReady = true }) => {
+  const getTabLabel = (tab: NavTab): string => {
+    switch (tab) {
+      case 'home':
+        return 'Academy Dashboard';
+      case 'play':
+        return 'Play vs Stockfish';
+      case 'analysis':
+        return 'Interactive Analysis Lab';
+      case 'coach':
+        return 'Grandmaster Mentor Coach';
+      case 'academy':
+        return 'Curriculum Academy';
+      case 'openings':
+        return 'Opening Encyclopedia';
+      case 'tactics':
+        return 'Tactics Training Gym';
+      case 'endgames':
+        return 'Theoretical Endgame Lab';
+      case 'repertoire':
+        return 'Opening Repertoire';
+      case 'mistakes':
+        return 'Personal Mistake Gym';
+      case 'library':
+        return 'Game Archive';
+      case 'progress':
+        return 'Evidence-Based Progress';
+      case 'settings':
+        return 'Preferences & System';
+      default:
+        return 'Grandmaster OS';
+    }
+  };
+
   return (
-    <div className="h-6 w-full bg-charcoal-950 border-t border-charcoal-850 flex items-center justify-between px-3 text-[11px] text-charcoal-300 select-none font-mono shrink-0">
-      {/* Left: Active Mode & Engine Status */}
+    <footer className="h-7 w-full bg-[#090c12] border-t border-[#141b25] flex items-center justify-between px-3 select-none text-[10px] text-slate-400 shrink-0 font-mono">
+      {/* Left: Active View status */}
+      <div className="flex items-center gap-2">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+        <span className="text-slate-300 font-semibold">{getTabLabel(activeTab)}</span>
+      </div>
+
+      {/* Center: Desktop Quick Shortcuts */}
+      <div className="hidden md:flex items-center gap-4 text-slate-500">
+        <span><kbd className="px-1.5 py-0.5 rounded bg-[#131a24] text-slate-300 border border-[#202b3a]">Space</kbd> Flip Board</span>
+        <span><kbd className="px-1.5 py-0.5 rounded bg-[#131a24] text-slate-300 border border-[#202b3a]">H</kbd> Hint</span>
+        <span><kbd className="px-1.5 py-0.5 rounded bg-[#131a24] text-slate-300 border border-[#202b3a]">Z</kbd> Undo (Practice)</span>
+        <span><kbd className="px-1.5 py-0.5 rounded bg-[#131a24] text-slate-300 border border-[#202b3a]">Esc</kbd> Clear Arrows</span>
+      </div>
+
+      {/* Right: Engine & Privacy Verification */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 text-emerald-400">
-          <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-          <span className="font-semibold uppercase tracking-wider">{activeTab}</span>
-        </div>
-
-        <span className="text-charcoal-600">•</span>
-
-        <div className="flex items-center gap-1.5 text-charcoal-300">
-          <Cpu className="w-3.5 h-3.5 text-sky-400" />
-          <span>Stockfish UCI ({settings.engineThreads} Threads / {settings.engineHashMb} MB Hash)</span>
-        </div>
+        <span className="flex items-center gap-1.5 text-emerald-400">
+          <span className={`w-1.5 h-1.5 rounded-full ${isEngineReady ? 'bg-emerald-400' : 'bg-amber-400 animate-ping'}`} />
+          <span>{isEngineReady ? 'Stockfish 17 UCI Ready' : 'Initializing Engine...'}</span>
+        </span>
+        <span className="text-[#2a364a]">•</span>
+        <span className="text-slate-500">Local SQLite Air-Gapped</span>
       </div>
-
-      {/* Center: Desktop Hotkeys Helper */}
-      <div className="hidden lg:flex items-center gap-2.5 text-charcoal-400">
-        <Keyboard className="w-3.5 h-3.5 text-charcoal-500" />
-        <span>[Space] Flip</span>
-        <span className="text-charcoal-700">•</span>
-        <span>[H] Hint Arrow</span>
-        <span className="text-charcoal-700">•</span>
-        <span>[Right-Click Drag] Plan Arrows</span>
-        <span className="text-charcoal-700">•</span>
-        <span>[Esc] Clear</span>
-      </div>
-
-      {/* Right: Air-Gap Verification badge */}
-      <div className="flex items-center gap-1.5 text-emerald-400 font-semibold">
-        <Shield className="w-3.5 h-3.5 text-emerald-400" />
-        <span>Local Air-Gapped</span>
-      </div>
-    </div>
+    </footer>
   );
 };

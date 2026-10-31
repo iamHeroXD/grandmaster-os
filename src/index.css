@@ -8,7 +8,9 @@
   }
 
   body {
-    @apply bg-charcoal-950 text-charcoal-100 antialiased font-sans select-none overflow-hidden h-screen w-screen;
+    background-color: #0b0f15;
+    color: #f1f5f9;
+    @apply antialiased font-sans select-none overflow-hidden h-screen w-screen;
     -webkit-user-select: none;
     user-select: none;
     -webkit-font-smoothing: antialiased;

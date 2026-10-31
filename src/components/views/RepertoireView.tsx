@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StorageService } from '../../services/storage';
 import { RepertoireLine, UserSettings } from '../../types/database';
 import { ChessGameController } from '../../services/chessEngine';
 import { soundService } from '../../services/soundService';
 import { Color, Square, PieceType } from '../../types/chess';
 import { ChessBoard } from '../board/ChessBoard';
-import { Swords, Plus, Trash2, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Swords, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface RepertoireViewProps {
   settings: UserSettings;
@@ -42,7 +42,7 @@ const DEFAULT_REPERTOIRE_LINES: RepertoireLine[] = [
 ];
 
 export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
-  const [repertoire, setRepertoire] = useState<RepertoireLine[]>(() => {
+  const [repertoire] = useState<RepertoireLine[]>(() => {
     const saved = StorageService.getRepertoireLines();
     return saved.length > 0 ? saved : DEFAULT_REPERTOIRE_LINES;
   });
@@ -60,7 +60,6 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [rehearsalStatus, setRehearsalStatus] = useState<'playing' | 'completed' | 'deviation'>('playing');
 
-  // Load line into rehearsal mode
   const startRehearsal = (line: RepertoireLine) => {
     setSelectedLine(line);
     const c = new ChessGameController();
@@ -152,33 +151,33 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
   const filteredLines = repertoire.filter((l) => l.color === activeTab);
 
   return (
-    <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex overflow-hidden p-3 md:p-5 gap-4 max-w-[1400px] mx-auto w-full text-xs font-sans">
       {/* Repertoire Line Selector */}
-      <div className="w-80 bg-charcoal-900 border border-charcoal-800 rounded-lg flex flex-col overflow-hidden text-xs">
-        <div className="p-3 border-b border-charcoal-800 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-charcoal-100 font-bold">
-            <Swords className="w-4 h-4 text-chess-green" />
+      <div className="w-80 bg-[#111722] border border-[#1b2536] rounded-2xl flex flex-col overflow-hidden text-xs shrink-0 shadow-sm">
+        <div className="p-4 border-b border-[#1b2536] flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 text-slate-100 font-bold text-sm">
+            <Swords className="w-4 h-4 text-emerald-400" />
             <span>My Opening Repertoire</span>
           </div>
 
           {/* White / Black filter tabs */}
-          <div className="flex gap-1 bg-charcoal-800 p-1 rounded">
+          <div className="flex gap-1 bg-[#141c28] p-1 rounded-xl border border-[#202b3c]">
             <button
               onClick={() => setActiveTab('w')}
-              className={`flex-1 py-1 rounded font-semibold transition-all ${
+              className={`flex-1 py-1.5 rounded-lg font-semibold text-xs transition-all ${
                 activeTab === 'w'
-                  ? 'bg-charcoal-700 text-charcoal-100 shadow'
-                  : 'text-charcoal-400 hover:text-charcoal-200'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               White Lines
             </button>
             <button
               onClick={() => setActiveTab('b')}
-              className={`flex-1 py-1 rounded font-semibold transition-all ${
+              className={`flex-1 py-1.5 rounded-lg font-semibold text-xs transition-all ${
                 activeTab === 'b'
-                  ? 'bg-charcoal-700 text-charcoal-100 shadow'
-                  : 'text-charcoal-400 hover:text-charcoal-200'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
               }`}
             >
               Black Lines
@@ -187,7 +186,7 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
         </div>
 
         {/* Lines list */}
-        <div className="flex-1 overflow-y-auto divide-y divide-charcoal-800/50 p-1">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#17202c] p-1.5">
           {filteredLines.map((line) => {
             const isSelected = selectedLine.id === line.id;
 
@@ -195,19 +194,19 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
               <button
                 key={line.id}
                 onClick={() => startRehearsal(line)}
-                className={`w-full p-2.5 text-left rounded transition-colors flex flex-col gap-1 ${
+                className={`w-full p-3 text-left rounded-xl transition-all flex flex-col gap-1 ${
                   isSelected
-                    ? 'bg-chess-green/20 border-l-2 border-chess-green text-emerald-200'
-                    : 'hover:bg-charcoal-800/60 text-charcoal-300'
+                    ? 'bg-[#10241c] text-emerald-200 border border-emerald-800/60 shadow-sm'
+                    : 'hover:bg-[#141c28] text-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-charcoal-100">{line.openingName}</span>
-                  <span className="font-mono text-[10px] text-charcoal-500 px-1 bg-charcoal-800 rounded">
+                  <span className="font-bold text-slate-100 text-xs">{line.openingName}</span>
+                  <span className="font-mono text-[10px] text-amber-300 px-1.5 py-0.2 bg-[#182332] rounded font-bold">
                     {line.eco}
                   </span>
                 </div>
-                <div className="font-mono text-[10px] text-charcoal-400 truncate">
+                <div className="font-mono text-[10px] text-slate-400 truncate">
                   {line.moves.join(' ')}
                 </div>
               </button>
@@ -217,7 +216,7 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
       </div>
 
       {/* Rehearsal Board Area */}
-      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-5 min-h-0 items-start">
         <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 580px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
           <ChessBoard
             board={board}
@@ -236,13 +235,13 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
             maxBoardHeightOffset={160}
           />
 
-          <div className="flex items-center justify-between w-full px-2 text-xs text-charcoal-400">
+          <div className="flex items-center justify-between w-full px-2 text-xs text-slate-400 font-medium">
             <span>
               Target: Move {Math.floor(stepIndex / 2) + 1} ({selectedLine.color === 'w' ? 'White' : 'Black'})
             </span>
             <button
               onClick={() => startRehearsal(selectedLine)}
-              className="text-emerald-400 hover:underline flex items-center gap-1 font-semibold"
+              className="text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1 font-bold transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               <span>Restart Drill</span>
@@ -251,25 +250,25 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
         </div>
 
         {/* Rehearsal Prompts & Deviation Feedback */}
-        <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-lg p-5 flex flex-col justify-between overflow-y-auto text-xs">
-          <div className="flex flex-col gap-3">
+        <div className="flex-1 bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col justify-between overflow-y-auto text-xs shadow-sm">
+          <div className="flex flex-col gap-3.5">
             <div>
-              <span className="text-[10px] font-mono text-emerald-400 font-semibold uppercase tracking-wider">
+              <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider">
                 Repertoire Memorization Mode
               </span>
-              <h1 className="text-lg font-bold text-charcoal-100 mt-0.5">
+              <h1 className="text-lg font-black text-slate-100 mt-0.5 tracking-tight">
                 {selectedLine.openingName}
               </h1>
-              <p className="text-xs text-charcoal-400 mt-1">{selectedLine.notes}</p>
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">{selectedLine.notes}</p>
             </div>
 
             {/* Rehearsal Feedback */}
             {rehearsalStatus === 'completed' && (
-              <div className="p-3 bg-emerald-950/60 border border-emerald-800/60 rounded text-emerald-300 flex items-start gap-2">
+              <div className="p-3.5 bg-emerald-950/70 border border-emerald-600 rounded-xl text-emerald-200 flex items-start gap-2 shadow-md animate-fade-in">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold">Repertoire Line Mastered!</div>
-                  <div className="text-[11px] text-emerald-200/90 mt-0.5">
+                  <div className="font-bold text-emerald-300">Repertoire Line Mastered!</div>
+                  <div className="text-[11px] text-emerald-100/90 mt-0.5">
                     All moves played with 100% precision. You are ready to execute this opening in tournament play.
                   </div>
                 </div>
@@ -277,11 +276,11 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
             )}
 
             {rehearsalStatus === 'deviation' && (
-              <div className="p-3 bg-rose-950/60 border border-rose-800/60 rounded text-rose-300 flex items-start gap-2">
+              <div className="p-3.5 bg-rose-950/60 border border-rose-700/60 rounded-xl text-rose-200 flex items-start gap-2 shadow-md animate-fade-in">
                 <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="font-bold">Repertoire Deviation Detected</div>
-                  <div className="text-[11px] text-rose-200/90 mt-0.5">
+                  <div className="font-bold text-rose-300">Repertoire Deviation Detected</div>
+                  <div className="text-[11px] text-rose-100/90 mt-0.5">
                     Your move deviated from your selected repertoire line. The scheduled book move was:{' '}
                     <span className="font-bold font-mono text-amber-300">
                       {selectedLine.moves[stepIndex]}
@@ -292,20 +291,20 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
             )}
 
             {/* Full Move Sequence Reference */}
-            <div className="p-3 bg-charcoal-850 border border-charcoal-800 rounded">
-              <span className="text-[10px] uppercase font-bold text-charcoal-500 tracking-wider block mb-1">
+            <div className="p-3.5 bg-[#141c28] border border-[#202b3c] rounded-xl">
+              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">
                 Full Repertoire Line
               </span>
-              <div className="font-mono text-[11px] text-charcoal-300 flex flex-wrap gap-1.5">
+              <div className="font-mono text-[11px] text-slate-300 flex flex-wrap gap-1.5">
                 {selectedLine.moves.map((m, idx) => (
                   <span
                     key={idx}
-                    className={`px-1 rounded ${
+                    className={`px-1.5 py-0.5 rounded ${
                       idx === stepIndex
-                        ? 'bg-chess-green text-white font-bold'
+                        ? 'bg-emerald-600 text-white font-bold'
                         : idx < stepIndex
                         ? 'text-emerald-400 font-semibold'
-                        : 'text-charcoal-500'
+                        : 'text-slate-500'
                     }`}
                   >
                     {idx % 2 === 0 ? `${Math.floor(idx / 2) + 1}.` : ''}
@@ -316,12 +315,12 @@ export const RepertoireView: React.FC<RepertoireViewProps> = ({ settings }) => {
             </div>
           </div>
 
-          <div className="pt-4 border-t border-charcoal-800 flex justify-end">
+          <div className="pt-4 border-t border-[#1b2536] flex justify-end">
             <button
               onClick={() => startRehearsal(selectedLine)}
-              className="px-5 py-2 bg-chess-green hover:bg-chess-greenLight text-white font-semibold rounded shadow flex items-center gap-1.5 transition-all"
+              className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md flex items-center gap-1.5 transition-all active:scale-95 text-xs"
             >
-              <span>Practice Again</span>
+              <span>Practice Rehearsal Again</span>
             </button>
           </div>
         </div>

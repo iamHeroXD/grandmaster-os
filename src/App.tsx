@@ -97,7 +97,7 @@ export const App: React.FC = () => {
   ).length;
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-charcoal-950 text-charcoal-100 font-sans">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#0b0f15] text-slate-100 font-sans">
       {/* Title Bar */}
       <TitleBar
         profile={profile}
@@ -114,7 +114,7 @@ export const App: React.FC = () => {
         />
 
         {/* View Switcher */}
-        <main className="flex-1 flex overflow-y-auto overflow-x-hidden bg-charcoal-950 min-h-0">
+        <main className="flex-1 flex overflow-y-auto overflow-x-hidden bg-[#0b0f15] min-h-0">
           {activeTab === 'home' && (
             <HomeView
               profile={profile}

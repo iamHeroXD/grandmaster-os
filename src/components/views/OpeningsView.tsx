@@ -3,7 +3,7 @@ import { OPENING_ENCYCLOPEDIA, OpeningVariation } from '../../data/openings';
 import { ChessGameController } from '../../services/chessEngine';
 import { UserSettings } from '../../types/database';
 import { ChessBoard } from '../board/ChessBoard';
-import { BookOpen, Search, ShieldAlert, Sparkles, MoveRight } from 'lucide-react';
+import { BookOpen, Search, ShieldAlert, Sparkles } from 'lucide-react';
 
 interface OpeningsViewProps {
   settings: UserSettings;
@@ -44,24 +44,24 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
   };
 
   return (
-    <div className="flex-1 flex overflow-hidden p-4 gap-4 max-w-7xl mx-auto w-full">
+    <div className="flex-1 flex overflow-hidden p-3 md:p-5 gap-4 max-w-[1400px] mx-auto w-full text-xs font-sans">
       {/* Left Opening Catalog */}
-      <div className="w-80 bg-charcoal-900 border border-charcoal-800 rounded-lg flex flex-col overflow-hidden text-xs">
+      <div className="w-80 bg-[#111722] border border-[#1b2536] rounded-2xl flex flex-col overflow-hidden text-xs shrink-0 shadow-sm">
         {/* Search & Filter Header */}
-        <div className="p-3 border-b border-charcoal-800 flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-charcoal-100 font-bold">
-            <BookOpen className="w-4 h-4 text-chess-green" />
+        <div className="p-4 border-b border-[#1b2536] flex flex-col gap-2.5">
+          <div className="flex items-center gap-2 text-slate-100 font-bold text-sm">
+            <BookOpen className="w-4 h-4 text-emerald-400" />
             <span>Opening Encyclopedia</span>
           </div>
 
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-charcoal-500" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name, ECO, moves..."
-              className="w-full bg-charcoal-800 border border-charcoal-700 rounded pl-8 pr-2 py-1.5 text-charcoal-200 focus:outline-none focus:border-chess-green"
+              className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-xs"
             />
           </div>
 
@@ -69,7 +69,7 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full bg-charcoal-800 border border-charcoal-700 rounded px-2 py-1 text-charcoal-300"
+            className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-3 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-emerald-500"
           >
             {categories.map((c) => (
               <option key={c} value={c}>
@@ -80,7 +80,7 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
         </div>
 
         {/* Filtered List */}
-        <div className="flex-1 overflow-y-auto divide-y divide-charcoal-800/50 p-1">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#17202c] p-1.5">
           {filteredOpenings.map((op) => {
             const isSelected = selectedOpening.name === op.name;
 
@@ -88,19 +88,19 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
               <button
                 key={op.name}
                 onClick={() => handleSelectOpening(op)}
-                className={`w-full p-2.5 text-left rounded transition-colors flex flex-col gap-0.5 ${
+                className={`w-full p-3 text-left rounded-xl transition-all flex flex-col gap-1 ${
                   isSelected
-                    ? 'bg-chess-green/20 border-l-2 border-chess-green text-emerald-200'
-                    : 'hover:bg-charcoal-800/60 text-charcoal-300'
+                    ? 'bg-[#10241c] text-emerald-200 border border-emerald-800/60 shadow-sm'
+                    : 'hover:bg-[#141c28] text-slate-300'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-charcoal-100">{op.name}</span>
-                  <span className="font-mono text-[10px] text-charcoal-500 px-1 bg-charcoal-800 rounded">
+                  <span className="font-bold text-slate-100 text-xs">{op.name}</span>
+                  <span className="font-mono text-[10px] text-amber-300 px-1.5 py-0.2 bg-[#182332] rounded font-bold">
                     {op.eco}
                   </span>
                 </div>
-                <div className="font-mono text-[10px] text-charcoal-400 truncate">
+                <div className="font-mono text-[10px] text-slate-400 truncate">
                   {op.moves.join(' ')}
                 </div>
               </button>
@@ -110,7 +110,7 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
       </div>
 
       {/* Main Opening Explorer */}
-      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-4 min-h-0 items-start">
+      <div className="flex-1 flex overflow-y-auto overflow-x-hidden gap-5 min-h-0 items-start">
         {/* Board */}
         <div style={{ maxWidth: 'min(100%, calc(100vh - 140px), 580px)' }} className="w-full flex flex-col items-center justify-center gap-2.5 mx-auto min-h-0">
           <ChessBoard
@@ -122,49 +122,49 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
             interactive={false}
             maxBoardHeightOffset={160}
           />
-          <div className="text-xs text-charcoal-400 font-mono">
+          <div className="text-xs text-slate-400 font-mono text-center">
             Line: {selectedOpening.moves.join(' ')}
           </div>
         </div>
 
         {/* Detailed Strategic Breakdown */}
-        <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-lg p-5 flex flex-col gap-4 overflow-y-auto text-xs">
-          <div className="border-b border-charcoal-800 pb-3">
+        <div className="flex-1 bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto text-xs shadow-sm">
+          <div className="border-b border-[#1b2536] pb-3">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded bg-charcoal-800 border border-charcoal-700 font-mono font-bold text-amber-400 text-[11px]">
+              <span className="px-2 py-0.5 rounded bg-[#182332] border border-[#233144] font-mono font-bold text-amber-300 text-[11px]">
                 {selectedOpening.eco}
               </span>
-              <span className="text-[11px] font-mono text-charcoal-400 uppercase">
+              <span className="text-[11px] font-mono text-slate-400 uppercase font-semibold">
                 {selectedOpening.category}
               </span>
             </div>
-            <h1 className="text-lg font-bold text-charcoal-100 mt-1">{selectedOpening.name}</h1>
+            <h1 className="text-lg font-black text-slate-100 mt-1 tracking-tight">{selectedOpening.name}</h1>
           </div>
 
           {/* Strategic Plans */}
-          <div className="p-3 bg-charcoal-850 border border-charcoal-800 rounded">
-            <h3 className="font-semibold text-emerald-400 mb-1 flex items-center gap-1.5">
+          <div className="p-3.5 bg-[#141c28] border border-[#202b3c] rounded-xl">
+            <h3 className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5 text-xs">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Core Strategic Plans</span>
             </h3>
-            <p className="text-[11px] text-charcoal-200 leading-relaxed">{selectedOpening.plans}</p>
+            <p className="text-[11px] text-slate-300 leading-relaxed">{selectedOpening.plans}</p>
           </div>
 
           {/* Pawn Structure */}
-          <div className="p-3 bg-charcoal-850 border border-charcoal-800 rounded">
-            <h3 className="font-semibold text-sky-400 mb-1">Pawn Structure Tendencies</h3>
-            <p className="text-[11px] text-charcoal-200 leading-relaxed">{selectedOpening.pawnStructure}</p>
+          <div className="p-3.5 bg-[#141c28] border border-[#202b3c] rounded-xl">
+            <h3 className="font-bold text-sky-400 mb-1 text-xs">Pawn Structure Blueprints</h3>
+            <p className="text-[11px] text-slate-300 leading-relaxed">{selectedOpening.pawnStructure}</p>
           </div>
 
           {/* Tactical Motifs */}
-          <div className="p-3 bg-charcoal-850 border border-charcoal-800 rounded">
-            <h3 className="font-semibold text-amber-400 mb-1">Key Tactical Motifs</h3>
-            <p className="text-[11px] text-charcoal-200 leading-relaxed">{selectedOpening.tacticalMotifs}</p>
+          <div className="p-3.5 bg-[#141c28] border border-[#202b3c] rounded-xl">
+            <h3 className="font-bold text-amber-400 mb-1 text-xs">Key Tactical Motifs</h3>
+            <p className="text-[11px] text-slate-300 leading-relaxed">{selectedOpening.tacticalMotifs}</p>
           </div>
 
           {/* Traps & Refutations */}
           {selectedOpening.trapWarning && (
-            <div className="p-3 bg-rose-950/40 border border-rose-800/40 rounded flex items-start gap-2 text-rose-200">
+            <div className="p-3.5 bg-rose-950/40 border border-rose-800/40 rounded-xl flex items-start gap-2 text-rose-200">
               <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-rose-300">Important Trap / Defensive Warning: </span>
@@ -174,11 +174,11 @@ export const OpeningsView: React.FC<OpeningsViewProps> = ({ settings }) => {
           )}
 
           {/* Model Line */}
-          <div className="mt-auto pt-3 border-t border-charcoal-800">
-            <span className="text-[10px] uppercase font-bold text-charcoal-500 tracking-wider block mb-1">
+          <div className="mt-auto pt-3 border-t border-[#1b2536]">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block mb-1">
               Model Continuation Line
             </span>
-            <div className="font-mono text-[11px] p-2 bg-charcoal-850 rounded border border-charcoal-800 text-charcoal-300">
+            <div className="font-mono text-[11px] p-2.5 bg-[#141c28] rounded-xl border border-[#202b3c] text-emerald-300">
               {selectedOpening.modelLine}
             </div>
           </div>

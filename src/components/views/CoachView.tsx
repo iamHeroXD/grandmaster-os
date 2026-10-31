@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   Brain,
   RotateCcw,
-  BookOpen,
 } from 'lucide-react';
 
 interface CoachViewProps {
@@ -87,28 +86,28 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
       title: 'Master Elena',
       role: 'Academy Master',
       desc: 'Structured, patient, explains first principles, piece coordination, and fundamental rules clearly.',
-      color: 'border-emerald-600 bg-emerald-950/40 text-emerald-300',
+      color: 'border-emerald-500 bg-[#10231d] text-emerald-300',
     },
     {
       id: 'kasparov' as CoachPersona,
       title: 'Garry Kasparov',
       role: 'Dynamic Attacker',
-      desc: 'Relentless focus on seizing the initiative, king assault, open lines, and energetic counter-attacks.',
-      color: 'border-amber-600 bg-amber-950/40 text-amber-300',
+      desc: 'Relentless focus on seizing initiative, king assault, open lines, and energetic counter-attacks.',
+      color: 'border-amber-500 bg-[#241a10] text-amber-300',
     },
     {
       id: 'karpov' as CoachPersona,
       title: 'Anatoly Karpov',
       role: 'Positional Virtuoso',
-      desc: 'Prophylaxis, clamping the opponent\'s counterplay, pawn structure squeeze, and surgical endgame conversion.',
-      color: 'border-sky-600 bg-sky-950/40 text-sky-300',
+      desc: 'Prophylaxis, clamping opponent counterplay, pawn structure squeeze, and surgical endgame conversion.',
+      color: 'border-sky-500 bg-[#101d2c] text-sky-300',
     },
     {
       id: 'tal' as CoachPersona,
       title: 'Mikhail Tal',
       role: 'Tactical Magician',
-      desc: 'Romantic sacrifices, calculated chaos, hunting the enemy king, and creating unstoppable tactical fireworks.',
-      color: 'border-rose-600 bg-rose-950/40 text-rose-300',
+      desc: 'Romantic sacrifices, calculated chaos, hunting enemy king, and creating unstoppable tactical fireworks.',
+      color: 'border-rose-500 bg-[#281318] text-rose-300',
     },
   ];
 
@@ -188,7 +187,6 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
     setSelectedSquare(null);
     setLegalMoves([]);
 
-    // Coach comments on the played move
     const advice = GrandmasterCoachService.answerQuestion(
       'what_threat',
       controller.getFen(),
@@ -205,18 +203,18 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-5 max-w-6xl mx-auto w-full text-xs">
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-5 max-w-[1400px] mx-auto w-full text-xs font-sans">
       {/* Header Banner */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-charcoal-900 via-charcoal-900 to-charcoal-850 border border-charcoal-800 rounded-2xl p-5 shadow-lg">
+      <div className="flex items-center justify-between bg-[#111722] border border-[#1b2536] rounded-2xl p-5 shadow-sm">
         <div className="flex items-center gap-3.5">
-          <div className="w-11 h-11 rounded-xl bg-emerald-950/70 border border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-md">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-[#14231b] border border-emerald-800/50 flex items-center justify-center text-emerald-400 shadow-sm">
+            <GraduationCap className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-extrabold text-charcoal-100 tracking-tight">
+            <h1 className="text-base font-extrabold text-slate-100 tracking-tight">
               Grandmaster Mentor Laboratory
             </h1>
-            <p className="text-xs text-charcoal-400 mt-0.5">
+            <p className="text-xs text-slate-400 mt-0.5">
               Deterministic, offline chess intellect providing Socratic calculation guidance and pedagogical breakdowns.
             </p>
           </div>
@@ -224,7 +222,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
 
         <button
           onClick={handleReset}
-          className="px-3.5 py-2 rounded-xl bg-charcoal-800 hover:bg-charcoal-750 text-charcoal-200 border border-charcoal-700 flex items-center gap-1.5 transition-all text-xs font-semibold shadow-sm"
+          className="px-3.5 py-2 rounded-xl bg-[#141c28] hover:bg-[#1a2434] text-slate-300 border border-[#202b3c] flex items-center gap-1.5 transition-all text-xs font-semibold shadow-sm"
         >
           <RotateCcw className="w-3.5 h-3.5 text-emerald-400" />
           <span>Reset Study</span>
@@ -253,17 +251,17 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
               }}
               className={`p-3.5 rounded-xl border text-left transition-all ${
                 isSelected
-                  ? `${p.color} shadow-lg ring-1 ring-emerald-500/40 scale-[1.02]`
-                  : 'border-charcoal-800 bg-charcoal-900 text-charcoal-400 hover:bg-charcoal-850 hover:border-charcoal-700'
+                  ? `${p.color} shadow-sm ring-1 ring-emerald-500/30 scale-[1.01]`
+                  : 'border-[#1b2536] bg-[#111722] text-slate-400 hover:bg-[#141c28] hover:border-[#223046]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="font-extrabold text-charcoal-100 text-xs">{p.title}</span>
-                <span className="text-[10px] font-mono uppercase font-bold px-1.5 py-0.2 rounded bg-charcoal-800 text-charcoal-300">
+                <span className="font-extrabold text-slate-100 text-xs">{p.title}</span>
+                <span className="text-[10px] font-mono uppercase font-bold px-1.5 py-0.2 rounded bg-[#182231] text-slate-300">
                   {p.role}
                 </span>
               </div>
-              <p className="text-[11px] text-charcoal-400 mt-1.5 leading-relaxed">{p.desc}</p>
+              <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">{p.desc}</p>
             </button>
           );
         })}
@@ -283,12 +281,12 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
                   onClick={() => handleSelectStudy(pos)}
                   className={`p-2.5 rounded-xl border text-left transition-all ${
                     isSelected
-                      ? 'bg-emerald-950/70 border-emerald-500/70 text-emerald-200 font-bold shadow-sm'
-                      : 'bg-charcoal-900 border-charcoal-800 text-charcoal-400 hover:bg-charcoal-850'
+                      ? 'bg-[#10241c] border-emerald-800/60 text-emerald-200 font-bold shadow-sm'
+                      : 'bg-[#111722] border-[#1b2536] text-slate-400 hover:bg-[#141c28]'
                   }`}
                 >
-                  <div className="text-xs font-bold truncate text-charcoal-200">{pos.title}</div>
-                  <div className="text-[10px] text-charcoal-400 truncate mt-0.5">{pos.theme}</div>
+                  <div className="text-xs font-bold truncate text-slate-200">{pos.title}</div>
+                  <div className="text-[10px] text-slate-400 truncate mt-0.5">{pos.theme}</div>
                 </button>
               );
             })}
@@ -313,17 +311,17 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
             />
           </div>
 
-          <div className="text-xs text-charcoal-400 font-medium text-center">
+          <div className="text-xs text-slate-400 font-medium text-center">
             {selectedStudy.description} • <span className="text-emerald-400">Click & drag pieces to test moves!</span>
           </div>
         </div>
 
         {/* Right Column: Socratic Inquiry & Grandmaster Advice */}
-        <div className="lg:col-span-6 flex flex-col gap-3 bg-charcoal-900 border border-charcoal-800 rounded-2xl p-5 shadow-lg">
-          <div className="flex items-center justify-between border-b border-charcoal-800 pb-3">
+        <div className="lg:col-span-6 flex flex-col gap-3 bg-[#111722] border border-[#1b2536] rounded-2xl p-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#1b2536] pb-3">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-emerald-400" />
-              <span className="font-extrabold text-charcoal-100 text-sm">
+              <span className="font-extrabold text-slate-100 text-sm">
                 Socratic Inquiry & Deep Calculation
               </span>
             </div>
@@ -336,7 +334,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
           <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => handlePrompt('what_threat')}
-              className="p-2.5 rounded-xl bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-left text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
+              className="p-2.5 rounded-xl bg-[#141c28] hover:bg-[#1a2434] border border-[#202b3c] text-left text-slate-200 hover:text-white transition-all flex items-center justify-between group"
             >
               <span className="font-semibold text-xs">What is the threat?</span>
               <ShieldAlert className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition-transform" />
@@ -344,7 +342,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
 
             <button
               onClick={() => handlePrompt('what_plan')}
-              className="p-2.5 rounded-xl bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
+              className="p-2.5 rounded-xl bg-[#141c28] hover:bg-[#1a2434] border border-[#202b3c] text-left text-slate-200 hover:text-white transition-all flex items-center justify-between group"
             >
               <span className="font-semibold text-xs">What is the strategic plan?</span>
               <Compass className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform" />
@@ -352,7 +350,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
 
             <button
               onClick={() => handlePrompt('candidate_moves')}
-              className="p-2.5 rounded-xl bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
+              className="p-2.5 rounded-xl bg-[#141c28] hover:bg-[#1a2434] border border-[#202b3c] text-left text-slate-200 hover:text-white transition-all flex items-center justify-between group"
             >
               <span className="font-semibold text-xs">Calculate 3 candidate moves</span>
               <Swords className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
@@ -360,7 +358,7 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
 
             <button
               onClick={() => handlePrompt('quiz_me')}
-              className="p-2.5 rounded-xl bg-charcoal-850 hover:bg-charcoal-800 border border-charcoal-750 text-charcoal-200 hover:text-white transition-all flex items-center justify-between group"
+              className="p-2.5 rounded-xl bg-[#141c28] hover:bg-[#1a2434] border border-[#202b3c] text-left text-slate-200 hover:text-white transition-all flex items-center justify-between group"
             >
               <span className="font-semibold text-xs">Give me a calculation quiz</span>
               <Brain className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
@@ -368,12 +366,12 @@ export const CoachView: React.FC<CoachViewProps> = ({ profile, settings }) => {
           </div>
 
           {/* Master Output Bubble */}
-          <div className="p-4 bg-charcoal-850 border border-charcoal-750 rounded-xl text-charcoal-100 text-xs shadow-inner leading-relaxed">
-            <div className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-xs border-b border-charcoal-750 pb-1.5">
+          <div className="p-4 bg-[#141c28] border border-[#202b3c] rounded-xl text-slate-100 text-xs shadow-inner leading-relaxed">
+            <div className="font-bold text-emerald-400 mb-2 flex items-center gap-2 text-xs border-b border-[#202b3c] pb-1.5">
               <Award className="w-4 h-4 text-emerald-400" />
               <span>Mentor Guidance — {personas.find((p) => p.id === selectedPersona)?.title}</span>
             </div>
-            <p className="whitespace-pre-line text-xs text-charcoal-200 leading-normal font-sans">
+            <p className="whitespace-pre-line text-xs text-slate-300 leading-normal font-sans">
               {activeInsight}
             </p>
           </div>

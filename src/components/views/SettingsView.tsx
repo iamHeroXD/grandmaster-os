@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserSettings, UserProfile, BoardThemeName } from '../../types/database';
 import { StorageService } from '../../services/storage';
-import { Settings, Shield, Download, Upload, Trash2, Cpu, Volume2, Palette, Check } from 'lucide-react';
+import { Settings, Download, Trash2, Cpu, Volume2, Palette, Check } from 'lucide-react';
 
 interface SettingsViewProps {
   settings: UserSettings;
@@ -19,7 +19,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onRequestReset,
 }) => {
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
-  const [username, setUsername] = useState(profile?.username || '');
+  const [username, setUsername] = useState(profile?.username || 'Hero.X');
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
@@ -69,22 +69,22 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 max-w-4xl mx-auto w-full text-xs">
-      <div className="flex items-center justify-between bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 shadow">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-charcoal-800 border border-charcoal-700 flex items-center justify-center text-charcoal-200">
+    <div className="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-6 max-w-4xl mx-auto w-full text-xs font-sans">
+      <div className="flex items-center justify-between bg-[#111722] border border-[#1b2536] rounded-2xl p-5 shadow-sm">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-[#14231b] border border-emerald-800/50 flex items-center justify-center text-emerald-400">
             <Settings className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-charcoal-100">Preferences & Offline Diagnostics</h1>
-            <p className="text-xs text-charcoal-400">
+            <h1 className="text-base font-extrabold text-slate-100">Preferences & Offline Diagnostics</h1>
+            <p className="text-xs text-slate-400 mt-0.5">
               Configure local engine limits, themes, audio synthesis, and private data backups.
             </p>
           </div>
         </div>
 
         {savedSuccess && (
-          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-bold text-xs animate-fade-in">
             <Check className="w-4 h-4" />
             <span>Saved to disk</span>
           </span>
@@ -93,31 +93,28 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       <form onSubmit={handleSave} className="flex flex-col gap-5">
         {/* Profile Section */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-3">
-          <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
-            <span>Local Player Profile</span>
-          </h2>
-
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+          <h2 className="text-sm font-bold text-slate-100">Local Player Profile</h2>
           <div>
-            <label className="block text-charcoal-300 font-medium mb-1">Local Username</label>
+            <label className="block text-slate-300 font-medium mb-1.5">Local Username</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full max-w-sm bg-charcoal-800 border border-charcoal-700 rounded px-3 py-1.5 text-charcoal-100 focus:outline-none focus:border-chess-green font-medium"
+              className="w-full max-w-sm bg-[#141c28] border border-[#202b3c] rounded-xl px-3.5 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium text-xs"
             />
           </div>
         </div>
 
         {/* Board Customization */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-4">
-          <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
-            <Palette className="w-4 h-4 text-amber-400" />
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
+          <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+            <Palette className="w-4 h-4 text-emerald-400" />
             <span>Board Themes & Piece Styles</span>
           </h2>
 
           <div>
-            <label className="block text-charcoal-300 font-medium mb-1.5">Piece Style</label>
+            <label className="block text-slate-300 font-medium mb-2">Piece Style</label>
             <div className="grid grid-cols-3 gap-3">
               {[
                 { id: 'classic', label: 'Neo Staunton (Master)', desc: 'Official shaded tournament vector' },
@@ -128,221 +125,176 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   type="button"
                   key={ps.id}
                   onClick={() => setLocalSettings({ ...localSettings, pieceSet: ps.id as any })}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all ${
                     localSettings.pieceSet === ps.id
-                      ? 'border-emerald-500 bg-emerald-950/40 text-emerald-300 font-bold shadow'
-                      : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400 hover:text-charcoal-200'
+                      ? 'border-emerald-500 bg-[#10241c] text-emerald-300 font-bold shadow-sm'
+                      : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   <div className="text-xs">{ps.label}</div>
-                  <div className="text-[10px] text-charcoal-400 mt-0.5">{ps.desc}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{ps.desc}</div>
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-charcoal-300 font-medium mb-1.5">Board Color Theme</label>
+            <label className="block text-slate-300 font-medium mb-2">Board Color Theme</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              { id: 'tournament', label: 'Tournament Green', color: 'bg-[#769656]' },
-              { id: 'wood', label: 'Classic Wood', color: 'bg-[#b88b4a]' },
-              { id: 'slate', label: 'Slate Gray', color: 'bg-[#8ca1a9]' },
-              { id: 'monochrome', label: 'Monochrome', color: 'bg-[#6a6a6a]' },
-              { id: 'highcontrast', label: 'High Contrast', color: 'bg-[#2b2b2b]' },
-            ].map((theme) => (
-              <button
-                type="button"
-                key={theme.id}
-                onClick={() => setLocalSettings({ ...localSettings, boardTheme: theme.id as BoardThemeName })}
-                className={`p-2.5 rounded border flex items-center gap-2.5 transition-all ${
-                  localSettings.boardTheme === theme.id
-                    ? 'border-chess-green bg-charcoal-800 font-bold text-emerald-300'
-                    : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400'
-                }`}
-              >
-                <span className={`w-4 h-4 rounded-full ${theme.color} border border-charcoal-900 shadow-sm`} />
-                <span>{theme.label}</span>
-              </button>
-            ))}
+              {[
+                { id: 'tournament', label: 'Tournament Green', color: 'bg-[#769656]' },
+                { id: 'wood', label: 'Classic Wood', color: 'bg-[#b88b4a]' },
+                { id: 'slate', label: 'Slate Gray', color: 'bg-[#8ca1a9]' },
+                { id: 'monochrome', label: 'Monochrome', color: 'bg-[#6a6a6a]' },
+                { id: 'highcontrast', label: 'High Contrast', color: 'bg-[#2b2b2b]' },
+              ].map((theme) => (
+                <button
+                  type="button"
+                  key={theme.id}
+                  onClick={() => setLocalSettings({ ...localSettings, boardTheme: theme.id as BoardThemeName })}
+                  className={`p-3 rounded-xl border flex items-center gap-2.5 transition-all ${
+                    localSettings.boardTheme === theme.id
+                      ? 'border-emerald-500 bg-[#10241c] font-bold text-emerald-300 shadow-sm'
+                      : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <span className={`w-4 h-4 rounded-full ${theme.color} border border-black/50 shadow-sm`} />
+                  <span>{theme.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer text-charcoal-300">
+            <label className="flex items-center gap-2 cursor-pointer text-slate-300">
               <input
                 type="checkbox"
                 checked={localSettings.showCoordinates}
                 onChange={(e) => setLocalSettings({ ...localSettings, showCoordinates: e.target.checked })}
-                className="rounded border-charcoal-700 text-chess-green focus:ring-0"
+                className="rounded border-[#202b3c] text-emerald-600 focus:ring-0 bg-[#141c28]"
               />
               <span>Show Coordinates</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer text-charcoal-300">
+            <label className="flex items-center gap-2 cursor-pointer text-slate-300">
               <input
                 type="checkbox"
                 checked={localSettings.showLegalDots}
                 onChange={(e) => setLocalSettings({ ...localSettings, showLegalDots: e.target.checked })}
-                className="rounded border-charcoal-700 text-chess-green focus:ring-0"
+                className="rounded border-[#202b3c] text-emerald-600 focus:ring-0 bg-[#141c28]"
               />
               <span>Legal Move Indicators</span>
             </label>
 
-            <label className="flex items-center gap-2 cursor-pointer text-charcoal-300">
+            <label className="flex items-center gap-2 cursor-pointer text-slate-300">
               <input
                 type="checkbox"
                 checked={localSettings.highlightLastMove}
                 onChange={(e) => setLocalSettings({ ...localSettings, highlightLastMove: e.target.checked })}
-                className="rounded border-charcoal-700 text-chess-green focus:ring-0"
+                className="rounded border-[#202b3c] text-emerald-600 focus:ring-0 bg-[#141c28]"
               />
               <span>Highlight Last Move</span>
             </label>
           </div>
         </div>
 
-        {/* Engine Limits & Resources */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-4">
-          <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-sky-400" />
-            <span>Stockfish Engine Resources</span>
+        {/* Engine Resources */}
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-4 shadow-sm">
+          <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-emerald-400" />
+            <span>Stockfish 17 Engine Hardware Allocation</span>
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-charcoal-300 font-medium mb-1">
-                CPU Threads: {localSettings.engineThreads}
+              <label className="block text-slate-300 font-medium mb-1.5">
+                Engine CPU Threads: <span className="font-mono text-emerald-400 font-bold">{localSettings.engineThreads}</span>
               </label>
               <input
                 type="range"
-                min={1}
-                max={8}
+                min="1"
+                max="16"
                 value={localSettings.engineThreads}
                 onChange={(e) => setLocalSettings({ ...localSettings, engineThreads: parseInt(e.target.value, 10) })}
-                className="w-full accent-chess-green"
+                className="w-full accent-emerald-500"
               />
             </div>
 
             <div>
-              <label className="block text-charcoal-300 font-medium mb-1">
-                Hash Memory: {localSettings.engineHashMb} MB
+              <label className="block text-slate-300 font-medium mb-1.5">
+                Hash Memory Table: <span className="font-mono text-emerald-400 font-bold">{localSettings.engineHashMb} MB</span>
               </label>
               <input
                 type="range"
-                min={16}
-                max={512}
-                step={16}
+                min="16"
+                max="4096"
+                step="16"
                 value={localSettings.engineHashMb}
                 onChange={(e) => setLocalSettings({ ...localSettings, engineHashMb: parseInt(e.target.value, 10) })}
-                className="w-full accent-chess-green"
-              />
-            </div>
-
-            <div>
-              <label className="block text-charcoal-300 font-medium mb-1">
-                Default Depth Limit: {localSettings.engineDepthLimit}
-              </label>
-              <input
-                type="range"
-                min={10}
-                max={25}
-                value={localSettings.engineDepthLimit}
-                onChange={(e) => setLocalSettings({ ...localSettings, engineDepthLimit: parseInt(e.target.value, 10) })}
-                className="w-full accent-chess-green"
+                className="w-full accent-emerald-500"
               />
             </div>
           </div>
         </div>
 
-        {/* Audio Synthesis */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-3">
-          <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
+        {/* Audio */}
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+          <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-emerald-400" />
-            <span>Procedural Audio</span>
+            <span>Synthesized Sound Effects</span>
           </h2>
-
-          <div className="flex items-center gap-6">
-            <label className="flex items-center gap-2 cursor-pointer text-charcoal-300">
-              <input
-                type="checkbox"
-                checked={localSettings.soundEnabled}
-                onChange={(e) => setLocalSettings({ ...localSettings, soundEnabled: e.target.checked })}
-                className="rounded border-charcoal-700 text-chess-green focus:ring-0"
-              />
-              <span>Audio Synthesis Enabled</span>
+          <div>
+            <label className="block text-slate-300 font-medium mb-1.5">
+              Volume: <span className="font-mono text-emerald-400 font-bold">{Math.round(localSettings.soundVolume * 100)}%</span>
             </label>
-
-            <div className="flex items-center gap-2 flex-1 max-w-xs">
-              <span className="text-charcoal-400">Volume</span>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.05}
-                value={localSettings.soundVolume}
-                onChange={(e) => setLocalSettings({ ...localSettings, soundVolume: parseFloat(e.target.value) })}
-                className="w-full accent-chess-green"
-              />
-            </div>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={localSettings.soundVolume}
+              onChange={(e) => setLocalSettings({ ...localSettings, soundVolume: parseFloat(e.target.value) })}
+              className="w-full max-w-sm accent-emerald-500"
+            />
           </div>
         </div>
 
-        {/* Privacy & Air-gap Diagnostics */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-3">
-          <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <span>Privacy & Air-Gap Verification</span>
-          </h2>
-
-          <div className="p-3 bg-emerald-950/40 border border-emerald-800/40 rounded flex flex-col gap-1.5 text-emerald-300">
-            <div className="font-bold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Network Isolation Active (Zero Telemetry)</span>
-            </div>
-            <p className="text-[11px] text-emerald-200/80">
-              Content Security Policy blocks all external origins. No analytics beacons, telemetry pings, remote LLMs, or cloud databases are enabled or configured.
-            </p>
-          </div>
-        </div>
-
-        {/* Backup, Restore & Reset */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-5 flex flex-col gap-4">
-          <h2 className="text-sm font-bold text-charcoal-100">Data Management</h2>
-
-          <div className="flex flex-wrap gap-3">
+        {/* Data Backup & Restore */}
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-5 flex flex-col gap-3 shadow-sm">
+          <h2 className="text-sm font-bold text-slate-100">Private Data Backup & Reset</h2>
+          <div className="flex flex-wrap items-center gap-3">
             <button
               type="button"
               onClick={handleExportBackup}
-              className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-200 rounded font-semibold flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 bg-[#141c28] hover:bg-[#1a2434] text-slate-200 font-semibold rounded-xl border border-[#202b3c] flex items-center gap-2 transition-all shadow-sm text-xs"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export Full Backup (.json)</span>
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Export All Stored Games & Profile JSON</span>
             </button>
 
-            <label className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-200 rounded font-semibold flex items-center gap-1.5 cursor-pointer transition-colors">
-              <Upload className="w-3.5 h-3.5" />
-              <span>Restore Backup</span>
+            <label className="px-4 py-2 bg-[#141c28] hover:bg-[#1a2434] text-slate-200 font-semibold rounded-xl border border-[#202b3c] flex items-center gap-2 cursor-pointer transition-all shadow-sm text-xs">
+              <span>Restore Backup JSON</span>
               <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
             </label>
 
             <button
               type="button"
               onClick={onRequestReset}
-              className="px-4 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-800/60 rounded font-semibold flex items-center gap-1.5 transition-colors ml-auto"
+              className="px-4 py-2 bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 font-semibold rounded-xl border border-rose-800/40 flex items-center gap-2 transition-all shadow-sm ml-auto text-xs"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Reset Profile & Data</span>
+              <span>Reset Profile Data</span>
             </button>
           </div>
         </div>
 
-        {/* Save button */}
-        <div className="flex justify-end">
+        {/* Submit */}
+        <div className="flex justify-end pt-2 pb-6">
           <button
             type="submit"
-            className="px-6 py-2.5 bg-chess-green hover:bg-chess-greenLight text-white font-semibold rounded shadow transition-all hover:scale-105"
+            className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs"
           >
-            Save All Preferences
+            Save Preferences
           </button>
         </div>
       </form>

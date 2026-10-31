@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StorageService } from '../../services/storage';
 import { ChessGameController } from '../../services/chessEngine';
 import { GameSummary } from '../../types/chess';
-import { FolderArchive, Upload, Download, Search, Trash2, ArrowRight, FileText } from 'lucide-react';
+import { FolderArchive, Upload, Download, Search, Trash2, ArrowRight } from 'lucide-react';
 
 interface GameLibraryViewProps {
   onSelectGameForAnalysis: (game: GameSummary) => void;
@@ -81,16 +81,16 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden p-6 gap-4 max-w-6xl mx-auto w-full text-xs">
+    <div className="flex-1 flex flex-col overflow-hidden p-4 md:p-6 gap-4 max-w-[1400px] mx-auto w-full text-xs font-sans">
       {/* Header bar */}
-      <div className="flex items-center justify-between bg-charcoal-900 border border-charcoal-800 rounded-xl p-4 shadow">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-charcoal-800 border border-charcoal-700 flex items-center justify-center text-charcoal-200">
+      <div className="flex items-center justify-between bg-[#111722] border border-[#1b2536] rounded-2xl p-5 shadow-sm">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-[#14231b] border border-emerald-800/50 flex items-center justify-center text-emerald-400">
             <FolderArchive className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-charcoal-100">Local Game Library</h1>
-            <p className="text-xs text-charcoal-400">
+            <h1 className="text-base font-extrabold text-slate-100">Local Game Library</h1>
+            <p className="text-xs text-slate-400 mt-0.5">
               {games.length} stored games on your private disk. Complete PGN export and import.
             </p>
           </div>
@@ -98,9 +98,9 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
 
         <button
           onClick={() => setShowImportModal(true)}
-          className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-100 font-semibold rounded shadow flex items-center gap-1.5 transition-colors border border-charcoal-700"
+          className="px-4 py-2 bg-[#141c28] hover:bg-[#1a2434] text-slate-100 font-semibold rounded-xl shadow-sm flex items-center gap-2 transition-colors border border-[#202b3c] text-xs"
         >
-          <Upload className="w-3.5 h-3.5" />
+          <Upload className="w-3.5 h-3.5 text-emerald-400" />
           <span>Import PGN</span>
         </button>
       </div>
@@ -108,20 +108,20 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
       {/* Search and filters */}
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-charcoal-500" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-slate-500" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by player or time control..."
-            className="w-full bg-charcoal-900 border border-charcoal-800 rounded pl-9 pr-3 py-2 text-charcoal-200 focus:outline-none focus:border-chess-green"
+            className="w-full bg-[#111722] border border-[#1b2536] rounded-xl pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 text-xs"
           />
         </div>
 
         <select
           value={resultFilter}
           onChange={(e) => setResultFilter(e.target.value as 'all' | '1-0' | '0-1' | '1/2-1/2')}
-          className="bg-charcoal-900 border border-charcoal-800 rounded px-3 py-2 text-charcoal-300"
+          className="bg-[#111722] border border-[#1b2536] rounded-xl px-4 py-2 text-slate-300 text-xs focus:outline-none focus:border-emerald-500"
         >
           <option value="all">All Results</option>
           <option value="1-0">1-0 (White Win)</option>
@@ -131,37 +131,37 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
       </div>
 
       {/* Games List */}
-      <div className="flex-1 bg-charcoal-900 border border-charcoal-800 rounded-xl overflow-hidden flex flex-col shadow">
+      <div className="flex-1 bg-[#111722] border border-[#1b2536] rounded-2xl overflow-hidden flex flex-col shadow-sm">
         {filteredGames.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-charcoal-500 italic">
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-slate-500 italic">
             No games found matching your search.
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto divide-y divide-charcoal-800/60 font-mono">
+          <div className="flex-1 overflow-y-auto divide-y divide-[#17202c]">
             {filteredGames.map((g) => (
               <div
                 key={g.id}
                 onClick={() => onSelectGameForAnalysis(g)}
-                className="p-3.5 flex items-center justify-between hover:bg-charcoal-850/60 cursor-pointer transition-colors"
+                className="p-4 flex items-center justify-between hover:bg-[#141c28] cursor-pointer transition-colors"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3.5">
                   <span
-                    className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                    className={`font-mono font-bold px-2.5 py-1 rounded text-[10px] border ${
                       g.result === '1-0'
-                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                        ? 'bg-[#10241c] text-emerald-300 border-emerald-800/40'
                         : g.result === '0-1'
-                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                        : 'bg-charcoal-800 text-charcoal-300'
+                        ? 'bg-rose-950/60 text-rose-300 border-rose-800/40'
+                        : 'bg-[#182332] text-slate-300 border-[#233144]'
                     }`}
                   >
-                    {g.result}
+                    {g.result === '1/2-1/2' ? '½ - ½' : g.result.replace('-', ' - ')}
                   </span>
 
                   <div>
-                    <div className="font-sans font-semibold text-charcoal-100 text-xs">
+                    <div className="font-semibold text-slate-100 text-xs">
                       {g.whiteName} vs {g.blackName}
                     </div>
-                    <div className="text-[10px] text-charcoal-400 font-sans mt-0.5 flex items-center gap-2">
+                    <div className="text-[10px] text-slate-400 mt-0.5 flex items-center gap-2">
                       <span>{g.timeControl}</span>
                       <span>•</span>
                       <span>{g.moves.length} half-moves</span>
@@ -171,27 +171,27 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 font-sans">
+                <div className="flex items-center gap-3.5">
                   {g.accuracyWhite !== undefined && (
-                    <span className="text-[11px] text-emerald-400 font-mono">
+                    <span className="text-[11px] text-emerald-400 font-mono font-semibold">
                       Acc: {g.accuracyWhite}%
                     </span>
                   )}
                   <button
                     onClick={(e) => handleExportPgn(g, e)}
                     title="Export PGN file"
-                    className="p-1.5 rounded hover:bg-charcoal-700 text-charcoal-400 hover:text-charcoal-200 transition-colors"
+                    className="p-2 rounded-lg hover:bg-[#1b2536] text-slate-400 hover:text-slate-200 transition-colors"
                   >
                     <Download className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => g.id && handleDelete(g.id, e)}
                     title="Delete Game"
-                    className="p-1.5 rounded hover:bg-rose-950/60 text-charcoal-500 hover:text-rose-400 transition-colors"
+                    className="p-2 rounded-lg hover:bg-rose-950/60 text-slate-500 hover:text-rose-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <span className="text-chess-green font-semibold flex items-center gap-1 text-xs">
+                  <span className="text-emerald-400 font-semibold flex items-center gap-1 text-xs">
                     <span>Analyze</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
@@ -202,46 +202,40 @@ export const GameLibraryView: React.FC<GameLibraryViewProps> = ({ onSelectGameFo
         )}
       </div>
 
-      {/* Import Modal */}
+      {/* PGN Import Modal */}
       {showImportModal && (
-        <div className="fixed inset-0 z-50 bg-charcoal-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl max-w-lg w-full p-5 shadow-2xl flex flex-col gap-3">
-            <h2 className="text-sm font-bold text-charcoal-100 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-emerald-400" />
-              <span>Import PGN Game</span>
-            </h2>
-
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-6 max-w-lg w-full shadow-2xl flex flex-col gap-4">
+            <h3 className="text-base font-bold text-slate-100">Import PGN</h3>
+            <textarea
+              value={pgnImportText}
+              onChange={(e) => setPgnImportText(e.target.value)}
+              placeholder="Paste standard PGN notation here..."
+              rows={8}
+              className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl p-3 text-slate-200 font-mono text-xs focus:outline-none focus:border-emerald-500"
+            />
             {importError && (
-              <div className="p-2 bg-rose-950/60 border border-rose-800/60 rounded text-rose-300 text-xs">
-                {importError}
-              </div>
+              <p className="text-xs text-rose-400 font-medium">{importError}</p>
             )}
-
-            <form onSubmit={handleImportSubmit} className="flex flex-col gap-3">
-              <textarea
-                rows={8}
-                value={pgnImportText}
-                onChange={(e) => setPgnImportText(e.target.value)}
-                placeholder="Paste standard PGN text here (e.g. 1. e4 e5 2. Nf3 Nc6 3. Bb5 ...)"
-                className="w-full bg-charcoal-800 border border-charcoal-700 rounded p-3 text-xs font-mono text-charcoal-100 focus:outline-none focus:border-chess-green"
-              />
-
-              <div className="flex gap-2 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowImportModal(false)}
-                  className="px-4 py-2 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-300 rounded font-semibold text-xs"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-chess-green hover:bg-chess-greenLight text-white rounded font-semibold text-xs"
-                >
-                  Import Game
-                </button>
-              </div>
-            </form>
+            <div className="flex justify-end gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImportModal(false);
+                  setImportError('');
+                }}
+                className="px-4 py-2 rounded-xl bg-[#141c28] hover:bg-[#1a2434] text-slate-300 font-semibold text-xs border border-[#202b3c]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleImportSubmit}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md"
+              >
+                Import
+              </button>
+            </div>
           </div>
         </div>
       )}

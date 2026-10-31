@@ -483,7 +483,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
             {/* Engine Thinking Loading Banner */}
             {isEngineThinking && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3.5 py-1.5 bg-charcoal-900/90 border border-emerald-500/60 rounded-full shadow-2xl backdrop-blur-md animate-pulse">
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3.5 py-1.5 bg-[#111722]/95 border border-emerald-500/60 rounded-full shadow-2xl backdrop-blur-md animate-pulse">
                 <Cpu className="w-4 h-4 text-emerald-400 animate-spin" />
                 <span className="text-xs font-bold text-emerald-300 font-mono">Stockfish is calculating...</span>
               </div>
@@ -491,23 +491,23 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
             {/* Game Over Celebration Overlay */}
             {gameOver && (
-              <div className="absolute inset-0 z-40 bg-charcoal-950/90 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center shadow-2xl animate-fade-in border border-charcoal-700/80">
+              <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center shadow-2xl animate-fade-in border border-[#1b2536]">
                 <Award className="w-14 h-14 text-amber-400 mb-2 drop-shadow-md animate-bounce" />
-                <div className="text-2xl font-black text-charcoal-100 tracking-tight">{terminationMessage}</div>
-                <div className="text-sm font-mono text-charcoal-300 mt-1 font-bold">Game Result: {gameResult}</div>
+                <div className="text-2xl font-black text-slate-100 tracking-tight">{terminationMessage}</div>
+                <div className="text-sm font-mono text-slate-300 mt-1 font-bold">Game Result: {gameResult}</div>
 
                 {savedGameRecord && (
-                  <div className="mt-4 px-4 py-2 bg-charcoal-900 border border-charcoal-800 rounded-xl text-xs flex gap-4 font-mono">
-                    <span className="text-charcoal-300">White Accuracy: <strong className="text-emerald-400">{savedGameRecord.accuracyWhite}%</strong></span>
-                    <span className="text-charcoal-500">|</span>
-                    <span className="text-charcoal-300">Black Accuracy: <strong className="text-emerald-400">{savedGameRecord.accuracyBlack}%</strong></span>
+                  <div className="mt-4 px-4 py-2 bg-[#111722] border border-[#1b2536] rounded-xl text-xs flex gap-4 font-mono">
+                    <span className="text-slate-300">White Accuracy: <strong className="text-emerald-400">{savedGameRecord.accuracyWhite}%</strong></span>
+                    <span className="text-slate-500">|</span>
+                    <span className="text-slate-300">Black Accuracy: <strong className="text-emerald-400">{savedGameRecord.accuracyBlack}%</strong></span>
                   </div>
                 )}
 
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={handleNewGame}
-                    className="px-5 py-2.5 bg-charcoal-800 hover:bg-charcoal-700 text-charcoal-100 text-xs font-bold rounded-xl flex items-center gap-2 transition-all shadow-md hover:scale-105"
+                    className="px-5 py-2.5 bg-[#141c28] hover:bg-[#1a2434] text-slate-200 text-xs font-bold rounded-xl flex items-center gap-2 transition-all shadow-md hover:scale-105 border border-[#202b3c]"
                   >
                     <RotateCcw className="w-4 h-4" />
                     <span>Play Again</span>
@@ -534,7 +534,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             <button
               onClick={() => setBoardOrientation((o) => (o === 'w' ? 'b' : 'w'))}
               title="Flip Board [Space]"
-              className="px-3 py-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 text-charcoal-200 border border-charcoal-750 flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
+              className="px-3 py-1.5 rounded-xl bg-[#111722] hover:bg-[#141c28] text-slate-300 border border-[#1b2536] flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
             >
               <RotateCcw className="w-3.5 h-3.5 text-emerald-400" />
               <span>Flip</span>
@@ -544,7 +544,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
               onClick={handleShowHint}
               disabled={gameOver}
               title="Show Best Move Hint [H]"
-              className="px-3 py-1.5 rounded-lg bg-charcoal-850 hover:bg-emerald-950/60 hover:text-emerald-300 text-charcoal-200 border border-charcoal-750 flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
+              className="px-3 py-1.5 rounded-xl bg-[#111722] hover:bg-[#10241c] hover:text-emerald-300 text-slate-300 border border-[#1b2536] flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
             >
               <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
               <span>Hint</span>
@@ -553,10 +553,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
             <button
               onClick={() => setShowLiveEval(!showLiveEval)}
               title="Toggle Live Evaluation Bar"
-              className={`px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-colors shadow-sm font-semibold ${
+              className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-colors shadow-sm font-semibold ${
                 showLiveEval
-                  ? 'bg-emerald-950/70 border-emerald-500/60 text-emerald-300'
-                  : 'bg-charcoal-850 hover:bg-charcoal-800 text-charcoal-400 border-charcoal-750'
+                  ? 'bg-[#10241c] border-emerald-800/60 text-emerald-300'
+                  : 'bg-[#111722] hover:bg-[#141c28] text-slate-400 border-[#1b2536]'
               }`}
             >
               <BarChart2 className="w-3.5 h-3.5" />
@@ -566,7 +566,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             <button
               onClick={() => setSoundMuted(!soundMuted)}
               title={soundMuted ? 'Unmute Move Sounds' : 'Mute Move Sounds'}
-              className="p-2 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 text-charcoal-300 hover:text-charcoal-100 border border-charcoal-750 transition-colors shadow-sm"
+              className="p-2 rounded-xl bg-[#111722] hover:bg-[#141c28] text-slate-300 hover:text-slate-100 border border-[#1b2536] transition-colors shadow-sm"
             >
               {soundMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5 text-emerald-400" />}
             </button>
@@ -575,7 +575,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
               <button
                 onClick={handleUndo}
                 title="Undo Move [Z]"
-                className="px-3 py-1.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 text-charcoal-200 border border-charcoal-750 flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
+                className="px-3 py-1.5 rounded-xl bg-[#111722] hover:bg-[#141c28] text-slate-300 border border-[#1b2536] flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
               >
                 <Undo2 className="w-3.5 h-3.5 text-sky-400" />
                 <span>Undo</span>
@@ -587,7 +587,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             <button
               onClick={handleResign}
               disabled={gameOver || moves.length === 0}
-              className="px-3 py-1.5 rounded-lg bg-charcoal-850 hover:bg-rose-950/60 hover:text-rose-300 disabled:opacity-30 text-charcoal-400 border border-charcoal-750 flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
+              className="px-3 py-1.5 rounded-xl bg-[#111722] hover:bg-rose-950/60 hover:text-rose-300 disabled:opacity-30 text-slate-400 border border-[#1b2536] flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
             >
               <Flag className="w-3.5 h-3.5" />
               <span>Resign</span>
@@ -595,7 +595,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
             <button
               onClick={handleNewGame}
-              className="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-md hover:scale-105 active:scale-95"
+              className="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 transition-all shadow-md active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>New Game</span>
@@ -605,23 +605,23 @@ export const PlayView: React.FC<PlayViewProps> = ({
       </div>
 
       {/* Right sidebars: Move list & Settings/Coach tabs */}
-      <div className="flex flex-col flex-1 max-w-sm gap-3 h-full min-h-0 overflow-y-auto pr-1">
+      <div className="flex flex-col flex-1 max-w-sm gap-3.5 h-full min-h-0 overflow-y-auto pr-1">
         {/* Game Mode / Configuration Strip */}
-        <div className="bg-charcoal-900 border border-charcoal-800 rounded-xl p-3.5 text-xs flex flex-col gap-2.5 shadow-md">
-          <div className="flex items-center justify-between font-bold text-charcoal-100">
+        <div className="bg-[#111722] border border-[#1b2536] rounded-2xl p-4 text-xs flex flex-col gap-3 shadow-sm">
+          <div className="flex items-center justify-between font-bold text-slate-100">
             <span className="text-xs">Match Setup</span>
-            <span className="text-[10px] text-emerald-300 bg-emerald-950/70 px-2 py-0.5 rounded-full border border-emerald-700/50 font-mono font-bold">
+            <span className="text-[10px] text-emerald-300 bg-[#10241c] px-2 py-0.5 rounded-full border border-emerald-800/50 font-mono font-bold">
               Stockfish Offline
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="text-[11px] text-charcoal-400 block mb-1 font-semibold">Mode</label>
+              <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Mode</label>
               <select
                 value={gameMode}
                 onChange={(e) => setGameMode(e.target.value as GameMode)}
-                className="w-full bg-charcoal-800 border border-charcoal-700 rounded-lg px-2.5 py-1.5 text-charcoal-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-2.5 py-1.5 text-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
               >
                 <option value="vs_computer">Play Computer</option>
                 <option value="local_two_player">2-Player (Local)</option>
@@ -630,7 +630,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             </div>
 
             <div>
-              <label className="text-[11px] text-charcoal-400 block mb-1 font-semibold">Time Control</label>
+              <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Time Control</label>
               <select
                 value={timeControl.name}
                 onChange={(e) => {
@@ -639,7 +639,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
                   setWhiteClock(tc.baseMinutes * 60);
                   setBlackClock(tc.baseMinutes * 60);
                 }}
-                className="w-full bg-charcoal-800 border border-charcoal-700 rounded-lg px-2.5 py-1.5 text-charcoal-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
+                className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-2.5 py-1.5 text-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
               >
                 {TIME_CONTROLS.map((tc) => (
                   <option key={tc.name} value={tc.name}>
@@ -651,13 +651,13 @@ export const PlayView: React.FC<PlayViewProps> = ({
           </div>
 
           {gameMode === 'vs_computer' && (
-            <div className="grid grid-cols-2 gap-2.5 pt-2 border-t border-charcoal-800">
+            <div className="grid grid-cols-2 gap-2.5 pt-2 border-t border-[#1b2536]">
               <div>
-                <label className="text-[11px] text-charcoal-400 block mb-1 font-semibold">Difficulty</label>
+                <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Difficulty</label>
                 <select
                   value={computerStrength}
                   onChange={(e) => setComputerStrength(e.target.value as OpponentStrength)}
-                  className="w-full bg-charcoal-800 border border-charcoal-700 rounded-lg px-2.5 py-1.5 text-charcoal-200 text-xs font-bold focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-2.5 py-1.5 text-slate-200 text-xs font-bold focus:outline-none focus:border-emerald-500"
                 >
                   <option value="beginner">Beginner (~1000)</option>
                   <option value="intermediate">Intermediate (~1400)</option>
@@ -667,17 +667,17 @@ export const PlayView: React.FC<PlayViewProps> = ({
               </div>
 
               <div>
-                <label className="text-[11px] text-charcoal-400 block mb-1 font-semibold">Play As</label>
+                <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Play As</label>
                 <div className="flex gap-1.5">
                   <button
                     onClick={() => {
                       setPlayerColor('w');
                       setBoardOrientation('w');
                     }}
-                    className={`flex-1 py-1.5 rounded-lg border text-center font-bold text-xs transition-all ${
+                    className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
                       playerColor === 'w'
-                        ? 'border-emerald-500 bg-emerald-950/80 text-emerald-300 shadow-sm'
-                        : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400 hover:text-charcoal-200'
+                        ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
+                        : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     White
@@ -687,10 +687,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
                       setPlayerColor('b');
                       setBoardOrientation('b');
                     }}
-                    className={`flex-1 py-1.5 rounded-lg border text-center font-bold text-xs transition-all ${
+                    className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
                       playerColor === 'b'
-                        ? 'border-emerald-500 bg-emerald-950/80 text-emerald-300 shadow-sm'
-                        : 'border-charcoal-750 bg-charcoal-850 text-charcoal-400 hover:text-charcoal-200'
+                        ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
+                        : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     Black

@@ -16,6 +16,8 @@ import {
   GameTerminationReason,
 } from '../../types/chess';
 import { UserProfile, UserSettings } from '../../types/database';
+import { ChessBot } from '../../types/bots';
+import { CHESS_BOTS } from '../../data/botsData';
 import { ChessBoard } from '../board/ChessBoard';
 import { CapturedTray } from '../board/CapturedTray';
 import { MoveList } from '../board/MoveList';
@@ -23,6 +25,8 @@ import { ClockDisplay } from '../board/ClockDisplay';
 import { EvaluationBar } from '../board/EvaluationBar';
 import { GrandmasterCoachPanel } from '../coach/GrandmasterCoachPanel';
 import { ConfettiEffect } from '../common/ConfettiEffect';
+import { BotSelectionModal } from '../play/BotSelectionModal';
+import { BotChatterBanner } from '../play/BotChatterBanner';
 import {
   Play,
   RotateCcw,
@@ -36,6 +40,7 @@ import {
   Cpu,
   BarChart2,
   Sparkles,
+  Swords,
 } from 'lucide-react';
 
 interface PlayViewProps {
@@ -69,6 +74,9 @@ export const PlayView: React.FC<PlayViewProps> = ({
   // Settings & game mode
   const [gameMode, setGameMode] = useState<GameMode>('vs_computer');
   const [playerColor, setPlayerColor] = useState<Color>('w');
+  const [selectedBot, setSelectedBot] = useState<ChessBot>(() => CHESS_BOTS[3]); // Tactical Leo (1000 Elo)
+  const [isBotModalOpen, setIsBotModalOpen] = useState<boolean>(false);
+  const [botChatter, setBotChatter] = useState<string>(() => CHESS_BOTS[3].chatter.onStart[0]);
   const [computerStrength, setComputerStrength] = useState<OpponentStrength>('beginner');
   const [timeControl, setTimeControl] = useState<TimeControlConfig>(TIME_CONTROLS[4]); // 10+0
   const [boardOrientation, setBoardOrientation] = useState<Color>('w');
@@ -125,13 +133,22 @@ export const PlayView: React.FC<PlayViewProps> = ({
     if (isUserWin) {
       soundService.playVictory();
       setShowConfetti(true);
+      if (selectedBot.chatter.onLoss.length > 0) {
+        setBotChatter(selectedBot.chatter.onLoss[0]);
+      }
+    } else if (result === '1-0' || result === '0-1') {
+      if (selectedBot.chatter.onWin.length > 0) {
+        setBotChatter(selectedBot.chatter.onWin[0]);
+      }
     }
 
     const currentMoves = controller.getHistory();
+    const opponentDisplayName = gameMode === 'vs_computer' ? `${selectedBot.name} (${selectedBot.elo})` : 'Opponent';
+
     const record: GameSummary = {
       id: 'game_' + Date.now(),
-      whiteName: gameMode === 'vs_computer' && playerColor === 'b' ? `Stockfish (${computerStrength})` : profile?.username || 'White',
-      blackName: gameMode === 'vs_computer' && playerColor === 'w' ? `Stockfish (${computerStrength})` : profile?.username || 'Black',
+      whiteName: gameMode === 'vs_computer' && playerColor === 'b' ? opponentDisplayName : profile?.username || 'White',
+      blackName: gameMode === 'vs_computer' && playerColor === 'w' ? opponentDisplayName : profile?.username || 'Black',
       whiteColor: playerColor === 'w' ? 'user' : 'computer',
       blackColor: playerColor === 'b' ? 'user' : 'computer',
       result,
@@ -149,7 +166,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
     StorageService.saveGame(record);
     setSavedGameRecord(record);
     onGameFinished(record);
-  }, [gameMode, playerColor, computerStrength, profile, timeControl, initialCustomFen, controller, onGameFinished]);
+  }, [gameMode, playerColor, selectedBot, profile, timeControl, initialCustomFen, controller, onGameFinished]);
 
   // Clock tick timer
   useEffect(() => {
@@ -211,10 +228,19 @@ export const PlayView: React.FC<PlayViewProps> = ({
           }
         }
       }
+
+      // Bot reactive dialogue
+      if (currentTurn !== playerColor && selectedBot.chatter.onUserCheck.length > 0) {
+        const rand = selectedBot.chatter.onUserCheck[Math.floor(Math.random() * selectedBot.chatter.onUserCheck.length)];
+        setBotChatter(rand);
+      } else if (currentTurn === playerColor && selectedBot.chatter.onCheck.length > 0) {
+        const rand = selectedBot.chatter.onCheck[Math.floor(Math.random() * selectedBot.chatter.onCheck.length)];
+        setBotChatter(rand);
+      }
     } else {
       setCheckSquare(null);
     }
-  }, [controller, handleGameOver]);
+  }, [controller, handleGameOver, playerColor, selectedBot]);
 
   // Trigger computer move
   const triggerComputerMove = useCallback(async () => {
@@ -224,6 +250,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
     try {
       const bestMoveUci = await engineRef.current.findBestMove(currentFen, {
+        bot: selectedBot,
         strength: computerStrength,
       });
 
@@ -247,6 +274,12 @@ export const PlayView: React.FC<PlayViewProps> = ({
           setLastMove({ from, to });
           setHintArrow(null);
 
+          // Update bot chatter line
+          if (selectedBot.chatter.onMove.length > 0) {
+            const rand = selectedBot.chatter.onMove[Math.floor(Math.random() * selectedBot.chatter.onMove.length)];
+            setBotChatter(rand);
+          }
+
           if (turn === 'w') {
             setWhiteClock((c) => c + timeControl.incrementSeconds);
           } else {
@@ -261,7 +294,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
     } finally {
       setIsEngineThinking(false);
     }
-  }, [gameOver, controller, computerStrength, turn, timeControl, checkPostMoveState]);
+  }, [gameOver, controller, selectedBot, computerStrength, turn, timeControl, checkPostMoveState]);
 
   // Trigger engine if it's computer's turn
   useEffect(() => {
@@ -357,6 +390,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
   const handleShowHint = async () => {
     if (gameOver || !engineRef.current) return;
     try {
+      soundService.playClick();
       const bestMoveUci = await engineRef.current.findBestMove(controller.getFen(), { depth: 10 });
       if (bestMoveUci && bestMoveUci.length >= 4) {
         const from = bestMoveUci.substring(0, 2) as Square;
@@ -370,6 +404,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
   // Start new game
   const handleNewGame = () => {
+    soundService.playClick();
     controller.reset(initialCustomFen);
     setBoard(controller.getBoard());
     setTurn(controller.getTurn());
@@ -386,6 +421,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
     setSavedGameRecord(null);
     setShowConfetti(false);
     setIsEngineThinking(false);
+    setBotChatter(selectedBot.chatter.onStart[0]);
 
     const sec = timeControl.baseMinutes * 60;
     setWhiteClock(sec);
@@ -396,6 +432,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
   // Resign
   const handleResign = () => {
     if (gameOver) return;
+    soundService.playClick();
     const winner = playerColor === 'w' ? '0-1' : '1-0';
     handleGameOver('resignation', winner, `${profile?.username || 'Player'} resigned.`);
   };
@@ -403,6 +440,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
   // Undo (practice mode)
   const handleUndo = () => {
     if (gameOver || gameMode !== 'practice') return;
+    soundService.playClick();
     controller.undo();
     setBoard(controller.getBoard());
     setTurn(controller.getTurn());
@@ -419,6 +457,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
       if (e.code === 'Space') {
         e.preventDefault();
+        soundService.playClick();
         setBoardOrientation((o) => (o === 'w' ? 'b' : 'w'));
       } else if (e.key === 'h' || e.key === 'H') {
         handleShowHint();
@@ -431,9 +470,27 @@ export const PlayView: React.FC<PlayViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameMode]);
 
+  const opponentDisplayName =
+    gameMode === 'vs_computer' ? `${selectedBot.name} (${selectedBot.elo})` : 'Opponent';
+
   return (
     <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-4 md:gap-5 max-w-7xl mx-auto w-full h-full min-h-0 items-start justify-center">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
+
+      {/* Bot Selection Modal */}
+      <BotSelectionModal
+        isOpen={isBotModalOpen}
+        onClose={() => setIsBotModalOpen(false)}
+        selectedBotId={selectedBot.id}
+        onSelectBot={(bot) => {
+          setSelectedBot(bot);
+          setBotChatter(bot.chatter.onStart[0]);
+          if (bot.tier === 'beginner') setComputerStrength('beginner');
+          else if (bot.tier === 'intermediate') setComputerStrength('intermediate');
+          else if (bot.tier === 'advanced') setComputerStrength('advanced');
+          else setComputerStrength('master');
+        }}
+      />
 
       {/* Left Chessboard area */}
       <div
@@ -445,10 +502,19 @@ export const PlayView: React.FC<PlayViewProps> = ({
           whiteSeconds={whiteClock}
           blackSeconds={blackClock}
           activeColor={isClockRunning ? turn : null}
-          whiteName={gameMode === 'vs_computer' && playerColor === 'b' ? `Stockfish (${computerStrength})` : profile?.username || 'White'}
-          blackName={gameMode === 'vs_computer' && playerColor === 'w' ? `Stockfish (${computerStrength})` : profile?.username || 'Black'}
+          whiteName={gameMode === 'vs_computer' && playerColor === 'b' ? opponentDisplayName : profile?.username || 'White'}
+          blackName={gameMode === 'vs_computer' && playerColor === 'w' ? opponentDisplayName : profile?.username || 'Black'}
           isUntimed={timeControl.baseMinutes === 0}
         />
+
+        {/* Bot Interactive Chatter Banner */}
+        {gameMode === 'vs_computer' && (
+          <BotChatterBanner
+            bot={selectedBot}
+            message={botChatter}
+            isEngineThinking={isEngineThinking}
+          />
+        )}
 
         {/* Captured Pieces Tray */}
         <CapturedTray board={board} playerColor={playerColor} />
@@ -478,20 +544,22 @@ export const PlayView: React.FC<PlayViewProps> = ({
               onSquareClick={handleSquareClick}
               onMovePiece={handleMovePiece}
               interactive={!gameOver && !(gameMode === 'vs_computer' && turn !== playerColor)}
-              maxBoardHeightOffset={210}
+              maxBoardHeightOffset={230}
             />
 
             {/* Engine Thinking Loading Banner */}
             {isEngineThinking && (
               <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3.5 py-1.5 bg-[#111722]/95 border border-emerald-500/60 rounded-full shadow-2xl backdrop-blur-md animate-pulse">
                 <Cpu className="w-4 h-4 text-emerald-400 animate-spin" />
-                <span className="text-xs font-bold text-emerald-300 font-mono">Stockfish is calculating...</span>
+                <span className="text-xs font-bold text-emerald-300 font-mono">
+                  {selectedBot.name} is calculating...
+                </span>
               </div>
             )}
 
             {/* Game Over Celebration Overlay */}
             {gameOver && (
-              <div className="absolute inset-0 z-40 bg-black/80 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center shadow-2xl animate-fade-in border border-[#1b2536]">
+              <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center p-6 text-center shadow-2xl animate-fade-in border border-[#1b2536]">
                 <Award className="w-14 h-14 text-amber-400 mb-2 drop-shadow-md animate-bounce" />
                 <div className="text-2xl font-black text-slate-100 tracking-tight">{terminationMessage}</div>
                 <div className="text-sm font-mono text-slate-300 mt-1 font-bold">Game Result: {gameResult}</div>
@@ -515,7 +583,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
                   {savedGameRecord && (
                     <button
-                      onClick={() => onNavigateToAnalysis(savedGameRecord)}
+                      onClick={() => {
+                        soundService.playClick();
+                        onNavigateToAnalysis(savedGameRecord);
+                      }}
                       className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all hover:scale-105"
                     >
                       <span>Analyze with Coach</span>
@@ -532,7 +603,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
         <div className="flex items-center justify-between w-full px-1 text-xs">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setBoardOrientation((o) => (o === 'w' ? 'b' : 'w'))}
+              onClick={() => {
+                soundService.playClick();
+                setBoardOrientation((o) => (o === 'w' ? 'b' : 'w'));
+              }}
               title="Flip Board [Space]"
               className="px-3 py-1.5 rounded-xl bg-[#111722] hover:bg-[#141c28] text-slate-300 border border-[#1b2536] flex items-center gap-1.5 transition-colors shadow-sm font-semibold"
             >
@@ -551,7 +625,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
             </button>
 
             <button
-              onClick={() => setShowLiveEval(!showLiveEval)}
+              onClick={() => {
+                soundService.playClick();
+                setShowLiveEval(!showLiveEval);
+              }}
               title="Toggle Live Evaluation Bar"
               className={`px-3 py-1.5 rounded-xl border flex items-center gap-1.5 transition-colors shadow-sm font-semibold ${
                 showLiveEval
@@ -564,7 +641,10 @@ export const PlayView: React.FC<PlayViewProps> = ({
             </button>
 
             <button
-              onClick={() => setSoundMuted(!soundMuted)}
+              onClick={() => {
+                soundService.playClick();
+                setSoundMuted(!soundMuted);
+              }}
               title={soundMuted ? 'Unmute Move Sounds' : 'Mute Move Sounds'}
               className="p-2 rounded-xl bg-[#111722] hover:bg-[#141c28] text-slate-300 hover:text-slate-100 border border-[#1b2536] transition-colors shadow-sm"
             >
@@ -620,10 +700,13 @@ export const PlayView: React.FC<PlayViewProps> = ({
               <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Mode</label>
               <select
                 value={gameMode}
-                onChange={(e) => setGameMode(e.target.value as GameMode)}
+                onChange={(e) => {
+                  soundService.playClick();
+                  setGameMode(e.target.value as GameMode);
+                }}
                 className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-2.5 py-1.5 text-slate-200 text-xs font-medium focus:outline-none focus:border-emerald-500"
               >
-                <option value="vs_computer">Play Computer</option>
+                <option value="vs_computer">Play Computer / Bot</option>
                 <option value="local_two_player">2-Player (Local)</option>
                 <option value="practice">Practice & Explore</option>
               </select>
@@ -634,6 +717,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
               <select
                 value={timeControl.name}
                 onChange={(e) => {
+                  soundService.playClick();
                   const tc = TIME_CONTROLS.find((t) => t.name === e.target.value) || TIME_CONTROLS[4];
                   setTimeControl(tc);
                   setWhiteClock(tc.baseMinutes * 60);
@@ -651,50 +735,97 @@ export const PlayView: React.FC<PlayViewProps> = ({
           </div>
 
           {gameMode === 'vs_computer' && (
-            <div className="grid grid-cols-2 gap-2.5 pt-2 border-t border-[#1b2536]">
-              <div>
-                <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Difficulty</label>
-                <select
-                  value={computerStrength}
-                  onChange={(e) => setComputerStrength(e.target.value as OpponentStrength)}
-                  className="w-full bg-[#141c28] border border-[#202b3c] rounded-xl px-2.5 py-1.5 text-slate-200 text-xs font-bold focus:outline-none focus:border-emerald-500"
+            <div className="pt-2 border-t border-[#1b2536] flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] text-slate-400 font-semibold">Opponent Bot</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    soundService.playClick();
+                    setIsBotModalOpen(true);
+                  }}
+                  className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
                 >
-                  <option value="beginner">Beginner (~1000)</option>
-                  <option value="intermediate">Intermediate (~1400)</option>
-                  <option value="advanced">Advanced (~1850)</option>
-                  <option value="master">Master (Max UCI)</option>
-                </select>
+                  <Swords className="w-3 h-3" />
+                  <span>Choose Bot (12) →</span>
+                </button>
               </div>
 
-              <div>
-                <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Play As</label>
-                <div className="flex gap-1.5">
-                  <button
-                    onClick={() => {
-                      setPlayerColor('w');
-                      setBoardOrientation('w');
-                    }}
-                    className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
-                      playerColor === 'w'
-                        ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
-                        : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
-                    }`}
+              {/* Bot Card Preview */}
+              <div
+                onClick={() => {
+                  soundService.playClick();
+                  setIsBotModalOpen(true);
+                }}
+                className="flex items-center justify-between p-2.5 rounded-xl bg-[#141c28] hover:bg-[#182333] border border-[#202b3c] hover:border-emerald-500/50 cursor-pointer transition-all shadow-sm group"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div
+                    className={`w-9 h-9 rounded-xl border flex items-center justify-center text-lg shrink-0 shadow-inner ${selectedBot.avatarBg}`}
                   >
-                    White
-                  </button>
-                  <button
-                    onClick={() => {
-                      setPlayerColor('b');
-                      setBoardOrientation('b');
-                    }}
-                    className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
-                      playerColor === 'b'
-                        ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
-                        : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
-                    }`}
-                  >
-                    Black
-                  </button>
+                    {selectedBot.avatar}
+                  </div>
+                  <div className="min-w-0 truncate">
+                    <div className="font-extrabold text-xs text-slate-200 group-hover:text-emerald-300 transition-colors truncate">
+                      {selectedBot.name}
+                    </div>
+                    <div className="text-[10px] text-slate-400 truncate">
+                      {selectedBot.playstyle}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0 pl-2">
+                  <div className="text-xs font-black font-mono text-emerald-400">
+                    {selectedBot.elo}
+                  </div>
+                  <div className="text-[9px] uppercase font-mono text-slate-500">
+                    {selectedBot.tier}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5 pt-1">
+                <div>
+                  <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Play As</label>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => {
+                        soundService.playClick();
+                        setPlayerColor('w');
+                        setBoardOrientation('w');
+                      }}
+                      className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
+                        playerColor === 'w'
+                          ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
+                          : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      White
+                    </button>
+                    <button
+                      onClick={() => {
+                        soundService.playClick();
+                        setPlayerColor('b');
+                        setBoardOrientation('b');
+                      }}
+                      className={`flex-1 py-1.5 rounded-xl border text-center font-bold text-xs transition-all ${
+                        playerColor === 'b'
+                          ? 'border-emerald-500 bg-[#10241c] text-emerald-300 shadow-sm'
+                          : 'border-[#202b3c] bg-[#141c28] text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Black
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[11px] text-slate-400 block mb-1 font-semibold">Bot Depth</label>
+                  <div className="px-2.5 py-1.5 bg-[#141c28] border border-[#202b3c] rounded-xl text-slate-300 text-xs font-mono font-bold flex items-center justify-between">
+                    <span>Depth {selectedBot.depth}</span>
+                    <span className="text-[10px] text-emerald-400">Lv.{selectedBot.stockfishLevel}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -719,6 +850,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
             lastMove={moves[moves.length - 1]}
             onShowThreatArrow={async () => {
               if (engineRef.current) {
+                soundService.playClick();
                 const threat = await engineRef.current.findBestMove(fen, { depth: 8 });
                 if (threat && threat.length >= 4) {
                   setHintArrow({

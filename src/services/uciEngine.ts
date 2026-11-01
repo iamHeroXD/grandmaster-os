@@ -128,17 +128,43 @@ export class UciEngineService {
     this.sendCommand(`go depth ${depth}`);
   }
 
+  public setBotDifficulty(bot: { stockfishLevel: number; uciElo?: number; depth?: number }) {
+    this.sendCommand(`setoption name Skill Level value ${bot.stockfishLevel}`);
+    if (bot.uciElo && bot.uciElo < 2800) {
+      this.sendCommand('setoption name UCI_LimitStrength value true');
+      this.sendCommand(`setoption name UCI_Elo value ${bot.uciElo}`);
+    } else {
+      this.sendCommand('setoption name UCI_LimitStrength value false');
+    }
+  }
+
   public async findBestMove(
     fen: string,
-    options: { depth?: number; movetime?: number; strength?: OpponentStrength } = {}
+    options: {
+      depth?: number;
+      movetime?: number;
+      strength?: OpponentStrength;
+      bot?: { stockfishLevel: number; uciElo?: number; depth?: number };
+    } = {}
   ): Promise<string> {
     this.stop();
     this.currentSearchId++;
 
-    const depth = options.depth || (options.strength === 'beginner' ? 3 : options.strength === 'intermediate' ? 8 : 14);
-    if (options.strength) {
+    if (options.bot) {
+      this.setBotDifficulty(options.bot);
+    } else if (options.strength) {
       this.setDifficulty(options.strength);
     }
+
+    const depth =
+      options.depth ||
+      (options.bot
+        ? options.bot.depth
+        : options.strength === 'beginner'
+        ? 3
+        : options.strength === 'intermediate'
+        ? 8
+        : 14);
 
     return new Promise((resolve) => {
       this.pendingBestMoveResolve = resolve;

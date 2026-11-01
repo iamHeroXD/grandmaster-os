@@ -100,6 +100,32 @@
   color: #ffffff;
 }
 
+.theme-cyberpunk .square-light {
+  background-color: #1e293b;
+}
+.theme-cyberpunk .square-dark {
+  background-color: #064e3b;
+}
+.theme-cyberpunk .coord-light {
+  color: #10b981;
+}
+.theme-cyberpunk .coord-dark {
+  color: #6ee7b7;
+}
+
+.theme-obsidian .square-light {
+  background-color: #212836;
+}
+.theme-obsidian .square-dark {
+  background-color: #111722;
+}
+.theme-obsidian .coord-light {
+  color: #10b981;
+}
+.theme-obsidian .coord-dark {
+  color: #94a3b8;
+}
+
 /* Subtle piece drag states */
 .piece-dragging {
   cursor: grabbing !important;

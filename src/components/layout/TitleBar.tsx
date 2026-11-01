@@ -1,5 +1,5 @@
 import React from 'react';
-import { Minus, Square as WindowSquare, X, User } from 'lucide-react';
+import { Minus, Square as WindowSquare, X, User, Search, Command } from 'lucide-react';
 import { UserProfile, UserSettings } from '../../types/database';
 import { AppLogo } from '../common/AppLogo';
 
@@ -7,9 +7,14 @@ interface TitleBarProps {
   profile: UserProfile | null;
   settings?: UserSettings;
   onOpenSettings?: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
-export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) => {
+export const TitleBar: React.FC<TitleBarProps> = ({
+  profile,
+  onOpenSettings,
+  onOpenCommandPalette,
+}) => {
   const username = profile?.username || 'Hero.X';
 
   const handleToggleMaximize = () => {
@@ -26,6 +31,24 @@ export const TitleBar: React.FC<TitleBarProps> = ({ profile, onOpenSettings }) =
       <div className="flex items-center gap-3">
         <AppLogo size={28} showText={true} />
       </div>
+
+      {/* Central Quick Command Palette Pill */}
+      {onOpenCommandPalette && (
+        <button
+          onClick={onOpenCommandPalette}
+          title="Open Command Palette (Ctrl+K)"
+          className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-[#111722] hover:bg-[#151e2c] border border-[#1e2a3c] hover:border-emerald-500/40 text-slate-400 hover:text-slate-200 transition-all text-xs group shadow-inner"
+        >
+          <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-400 transition-colors" />
+          <span className="font-normal text-slate-400 group-hover:text-slate-300">
+            Search academy, openings, shortcuts...
+          </span>
+          <kbd className="flex items-center gap-0.5 text-[10px] font-mono text-slate-400 bg-[#16202e] border border-[#233145] px-1.5 py-0.5 rounded ml-2">
+            <Command className="w-2.5 h-2.5" />
+            <span>K</span>
+          </kbd>
+        </button>
+      )}
 
       {/* Right Controls: Offline Mode, Profile, Window Controls */}
       <div className="flex items-center gap-4">

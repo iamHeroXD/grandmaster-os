@@ -8,6 +8,7 @@ import { StatusBar } from './components/layout/StatusBar';
 import { FirstRunModal } from './components/modals/FirstRunModal';
 import { ConfirmResetModal } from './components/modals/ConfirmResetModal';
 import { LoadingScreen } from './components/common/LoadingScreen';
+import { CommandPalette } from './components/common/CommandPalette';
 
 // Views
 import { HomeView } from './components/views/HomeView';
@@ -41,6 +42,19 @@ export const App: React.FC = () => {
   const [showFirstRunModal, setShowFirstRunModal] = useState<boolean>(!profile);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
   const [showLoadingScreen, setShowLoadingScreen] = useState<boolean>(true);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState<boolean>(false);
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   // Desktop heartbeat to keep offline supervisor alive while window is active
   useEffect(() => {
@@ -104,6 +118,7 @@ export const App: React.FC = () => {
       <TitleBar
         profile={profile}
         onOpenSettings={() => setActiveTab('settings')}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       />
 
       {/* Main Layout Area */}
@@ -214,6 +229,21 @@ export const App: React.FC = () => {
         isOpen={showResetModal}
         onConfirm={handleResetConfirm}
         onCancel={() => setShowResetModal(false)}
+      />
+
+      {/* Global Command Palette */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onNavigate={(tab) => {
+          setActiveTab(tab);
+        }}
+        isMuted={!settings.soundEnabled}
+        onToggleMute={() => {
+          const newSettings = { ...settings, soundEnabled: !settings.soundEnabled };
+          setSettings(newSettings);
+          StorageService.saveSettings(newSettings);
+        }}
       />
     </div>
   );

@@ -13,7 +13,7 @@ export interface UserProfile {
   updatedAt: string;
 }
 
-export type BoardThemeName = 'wood' | 'tournament' | 'slate' | 'monochrome' | 'highcontrast';
+export type BoardThemeName = 'wood' | 'tournament' | 'slate' | 'monochrome' | 'highcontrast' | 'cyberpunk' | 'obsidian';
 export type PieceSetName = 'classic' | 'wood' | 'modern';
 
 export interface UserSettings {

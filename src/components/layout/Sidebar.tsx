@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Settings,
 } from 'lucide-react';
+import { soundService } from '../../services/soundService';
 
 export type NavTab =
   | 'home'
@@ -36,6 +37,11 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
+  const handleItemClick = (tab: NavTab) => {
+    soundService.playClick();
+    onTabChange(tab);
+  };
+
   const primaryNavItems: { id: NavTab; label: string; icon: React.FC<{ className?: string }> }[] = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'play', label: 'Play Chess', icon: Play },
@@ -61,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
           return (
             <button
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => handleItemClick(item.id)}
               className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all ${
                 isActive
                   ? 'bg-[#10231c] text-emerald-400 border border-emerald-800/40 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
@@ -85,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
 
         {/* Settings */}
         <button
-          onClick={() => onTabChange('settings')}
+          onClick={() => handleItemClick('settings')}
           className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl font-medium text-xs transition-all ${
             activeTab === 'settings'
               ? 'bg-[#10231c] text-emerald-400 border border-emerald-800/40 shadow-[0_0_15px_rgba(16,185,129,0.1)]'

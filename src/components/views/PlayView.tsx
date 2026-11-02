@@ -474,7 +474,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
     gameMode === 'vs_computer' ? `${selectedBot.name} (${selectedBot.elo})` : 'Opponent';
 
   return (
-    <div className="flex-1 flex overflow-y-auto overflow-x-hidden p-3 md:p-4 gap-4 md:gap-5 max-w-7xl mx-auto w-full h-full min-h-0 items-start justify-center">
+    <div className="flex-1 flex overflow-hidden p-3 md:p-4 gap-4 md:gap-5 max-w-7xl mx-auto w-full h-full min-h-0 items-center justify-center">
       <ConfettiEffect active={showConfetti} onFinish={() => setShowConfetti(false)} />
 
       {/* Bot Selection Modal */}
@@ -494,8 +494,8 @@ export const PlayView: React.FC<PlayViewProps> = ({
 
       {/* Left Chessboard area */}
       <div
-        style={{ maxWidth: 'min(100%, calc(100vh - 120px), 640px)' }}
-        className="flex flex-col items-center justify-center flex-1 w-full mx-auto gap-2 min-h-0"
+        style={{ maxWidth: 'min(100%, calc(100vh - 120px), 620px)' }}
+        className="flex flex-col items-center justify-between flex-1 w-full mx-auto gap-1.5 min-h-0 h-full"
       >
         {/* Opponent clock & name */}
         <ClockDisplay
@@ -544,7 +544,7 @@ export const PlayView: React.FC<PlayViewProps> = ({
               onSquareClick={handleSquareClick}
               onMovePiece={handleMovePiece}
               interactive={!gameOver && !(gameMode === 'vs_computer' && turn !== playerColor)}
-              maxBoardHeightOffset={230}
+              maxBoardHeightOffset={280}
             />
 
             {/* Engine Thinking Loading Banner */}

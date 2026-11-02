@@ -26,7 +26,7 @@ export class UciEngineService {
     this.callbacks = { ...this.callbacks, ...cb };
   }
 
-  private initWorker() {
+  private initWorker(useFallbackJs: boolean = false) {
     try {
       if (typeof window === 'undefined') return;
 
@@ -37,11 +37,13 @@ export class UciEngineService {
       }
 
       const isWasmSupported =
+        !useFallbackJs &&
         typeof WebAssembly === 'object' &&
         WebAssembly.validate(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
 
       const scriptPath = isWasmSupported ? './stockfish.wasm.js' : './stockfish.js';
-      this.worker = new Worker(scriptPath);
+      const workerUrl = new URL(scriptPath, window.location.href).href;
+      this.worker = new Worker(workerUrl);
 
       this.worker.onmessage = (e) => {
         const line = typeof e.data === 'string' ? e.data : '';
@@ -50,6 +52,11 @@ export class UciEngineService {
 
       this.worker.onerror = (err) => {
         console.error('Stockfish Worker Error:', err);
+        if (!useFallbackJs && isWasmSupported) {
+          console.warn('WASM Stockfish failed, falling back to pure JavaScript stockfish.js...');
+          this.initWorker(true);
+          return;
+        }
         if (this.callbacks.onError) {
           this.callbacks.onError('Stockfish worker error: ' + (err.message || 'unknown error'));
         }
@@ -59,6 +66,11 @@ export class UciEngineService {
       this.sendCommand('uci');
     } catch (e: unknown) {
       console.error('Failed to initialize Stockfish worker:', e);
+      if (!useFallbackJs) {
+        console.warn('Retrying with JavaScript fallback...');
+        this.initWorker(true);
+        return;
+      }
       if (this.callbacks.onError) {
         this.callbacks.onError('Could not start Stockfish worker: ' + (e as Error).message);
       }

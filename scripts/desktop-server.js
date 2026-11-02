@@ -43,30 +43,33 @@ if (!fs.existsSync(distDir) || !fs.existsSync(path.join(distDir, 'index.html')))
   }
 }
 
-// Heartbeat management: automatic clean exit when window is closed
+// Heartbeat management: resilient to OS timer throttling and window minimization
 let lastHeartbeat = Date.now();
 let hasReceivedFirstHeartbeat = false;
 
+// Generous 10-minute window before deciding the user closed the window without an unload event
+const HEARTBEAT_TIMEOUT_MS = 600000; // 10 minutes
+const INITIAL_GRACE_PERIOD_MS = 180000; // 3 minutes
+
 const heartbeatMonitor = setInterval(() => {
   const elapsed = Date.now() - lastHeartbeat;
-  if (hasReceivedFirstHeartbeat && elapsed > 14000) {
-    log('[Grandmaster OS] Application window closed (heartbeat timeout). Exiting cleanly.');
+  if (hasReceivedFirstHeartbeat && elapsed > HEARTBEAT_TIMEOUT_MS) {
+    log('[Grandmaster OS] Application window inactive for >10m. Exiting cleanly.');
     clearInterval(heartbeatMonitor);
     try {
       if (fs.existsSync(portFile)) fs.unlinkSync(portFile);
     } catch {}
     process.exit(0);
   }
-  // Grace period on initial launch: 60 seconds to open window
-  if (!hasReceivedFirstHeartbeat && elapsed > 60000) {
-    log('[Grandmaster OS] No window connected within 60s of launch. Exiting.');
+  if (!hasReceivedFirstHeartbeat && elapsed > INITIAL_GRACE_PERIOD_MS) {
+    log('[Grandmaster OS] No window connected within initial launch window. Exiting.');
     clearInterval(heartbeatMonitor);
     try {
       if (fs.existsSync(portFile)) fs.unlinkSync(portFile);
     } catch {}
     process.exit(0);
   }
-}, 3000);
+}, 5000);
 
 // Create static HTTP server for local offline bundle
 const server = http.createServer((req, res) => {
@@ -79,8 +82,26 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache, no-store',
+      'Access-Control-Allow-Origin': '*',
     });
     res.end(JSON.stringify({ status: 'ok', time: Date.now() }));
+    return;
+  }
+
+  // Explicit shutdown endpoint (sent via navigator.sendBeacon on window close)
+  if (reqPath === '/api/shutdown') {
+    log('[Grandmaster OS] Application window closed by user. Exiting cleanly.');
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    });
+    res.end(JSON.stringify({ status: 'exiting' }));
+    setTimeout(() => {
+      try {
+        if (fs.existsSync(portFile)) fs.unlinkSync(portFile);
+      } catch {}
+      process.exit(0);
+    }, 400);
     return;
   }
 
@@ -109,6 +130,7 @@ const server = http.createServer((req, res) => {
       'Content-Type': contentType,
       'Cache-Control': 'no-cache, no-store, must-revalidate',
       'X-Content-Type-Options': 'nosniff',
+      'Access-Control-Allow-Origin': '*',
     });
     res.end(data);
   } catch (err) {

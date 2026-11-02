@@ -61,9 +61,34 @@ export const App: React.FC = () => {
     const pingHeartbeat = () => {
       fetch('/api/heartbeat').catch(() => {});
     };
+
     pingHeartbeat();
-    const intervalId = setInterval(pingHeartbeat, 4000);
-    return () => clearInterval(intervalId);
+    const intervalId = setInterval(pingHeartbeat, 3000);
+
+    const handleVisibilityOrFocus = () => {
+      pingHeartbeat();
+    };
+
+    const handleWindowClose = () => {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/api/shutdown');
+      } else {
+        fetch('/api/shutdown', { method: 'POST', keepalive: true }).catch(() => {});
+      }
+    };
+
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    window.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('beforeunload', handleWindowClose);
+    window.addEventListener('pagehide', handleWindowClose);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      window.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('beforeunload', handleWindowClose);
+      window.removeEventListener('pagehide', handleWindowClose);
+    };
   }, []);
 
   // Sync state

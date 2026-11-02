@@ -79,8 +79,8 @@ namespace GrandmasterOS
                     return;
                 }
 
-                // Poll until server is ready (up to 8 seconds)
-                for (int i = 0; i < 40; i++)
+                // Poll until server is ready (up to 25 seconds)
+                for (int i = 0; i < 125; i++)
                 {
                     Thread.Sleep(200);
 
@@ -122,8 +122,8 @@ namespace GrandmasterOS
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://127.0.0.1:" + port + "/");
                 request.Method = "GET";
-                request.Timeout = 600;
-                request.ReadWriteTimeout = 600;
+                request.Timeout = 1200;
+                request.ReadWriteTimeout = 1200;
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
                 {
